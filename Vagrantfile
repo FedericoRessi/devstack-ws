@@ -72,7 +72,7 @@ Vagrant.configure(2) do |config|
     end
   end
 
-  if git_proxy_wrapper != ""
+  if git_proxy_wrapper != nil
       config.vm.provision "file",
           source: git_proxy_wrapper,
           destination: "/home/vagrant/git_proxy_wrapper"
