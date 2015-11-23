@@ -24,6 +24,8 @@ vm_provision_script = "scripts/provision.sh"
 
 vm_provision_args = ""
 
+vm_git_proxy_wrapper = ENV["GIT_PROXY_COMMAND"]
+
 # --- vagrant meat ------------------------------------------------------------
 
 Vagrant.configure(2) do |config|
@@ -56,6 +58,12 @@ Vagrant.configure(2) do |config|
 
       vb.memory = vm_memory  # VM ram
       vb.cpus = vm_cpus      # VM CPU cores
+  end
+
+  if vm_git_proxy_wrapper != ""
+      config.vm.provision "file",
+          source: vm_git_proxy_wrapper,
+          destination: "/home/vagrant/git_proxy_wrapper"
   end
 
   config.vm.provision "shell", inline: <<-SHELL

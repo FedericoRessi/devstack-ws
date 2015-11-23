@@ -2,18 +2,25 @@
 
 CONF_DIR='/vagrant/etc'
 
+set -ex
+
+# Move git proxy wrapper
+export GIT_PROXY_WRAPPER=${GIT_PROXY_WRAPPER:-"/home/vagrant/git_proxy_wrapper"}
+if [ -x "$GIT_PROXY_WRAPPER" ]; then
+    sudo mv "$GIT_PROXY_WRAPPER" "/etc/default/git_proxy_wrapper"
+    export GIT_PROXY_WRAPPER="/etc/default/git_proxy_wrapper"
+fi
+
 # Import environment files from CONF_DIR
 if [ -d "$CONF_DIR" ]; then
     sudo cp -fvR "$CONF_DIR"/* "/etc"
     # Reload environment
     if [ -r "/etc/profile" ]; then
-        source "/etc/profile" || true
+        set +ex; source "/etc/profile"; set -ex
     fi
 fi
 
 source '/vagrant/scripts/distrib_properties.sh'
-
-set -ex
 
 # Add local IP addresses to /etc/hosts
 HOST_IPS=$(ip addr | awk '/inet /{split($2, a, "/"); print a[1]}')
