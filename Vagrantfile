@@ -20,11 +20,11 @@ vm_images = [
   ["fedora23", "box-cutter/fedora23"],
   ["centos7", "puppetlabs/centos-7.0-64-nocm"]]
 
-vm_provision_script = "scripts/provision.sh"
+git_proxy_wrapper = ENV["GIT_PROXY_COMMAND"]
 
-vm_provision_args = ""
-
-vm_git_proxy_wrapper = ENV["GIT_PROXY_COMMAND"]
+http_proxy = ENV["http_proxy"]
+https_proxy = ENV["https_proxy"]
+no_proxy = ENV["no_proxy"]
 
 # --- vagrant meat ------------------------------------------------------------
 
@@ -60,9 +60,21 @@ Vagrant.configure(2) do |config|
       vb.cpus = vm_cpus      # VM CPU cores
   end
 
-  if vm_git_proxy_wrapper != ""
+  if Vagrant.has_plugin?("vagrant-proxyconf")
+    if http_proxy != nil
+        config.proxy.http = http_proxy
+    end
+    if https_proxy != nil
+        config.proxy.https = https_proxy
+    end
+    if no_proxy != nil
+        config.proxy.no_proxy = no_proxy
+    end
+  end
+
+  if git_proxy_wrapper != ""
       config.vm.provision "file",
-          source: vm_git_proxy_wrapper,
+          source: git_proxy_wrapper,
           destination: "/home/vagrant/git_proxy_wrapper"
   end
 

@@ -1,0 +1,28 @@
+#!/usr/bin/env python
+
+import os
+import sys
+
+
+def get_no_proxy():
+    proxies = set(e.strip() for e in os.environ.get('no_proxy', '').split(','))
+
+    # all those hosts and ips named in /etc/hosts are added to no_proxy
+    # environment variable
+    with open('/etc/hosts', 'r') as hosts_file:
+        for line in hosts_file.readlines():
+            # strip out all comments
+            proxies.update(e.strip() for e in line.split('#', 1)[0].split())
+
+    try:
+        # Remove empty lines
+        proxies.remove('')
+    except KeyError:
+        pass
+
+    return sorted(proxies)
+
+if __name__ == '__main__':
+    out = sys.stdout
+    sys.stdout = sys.stderr  # redirect stdout to stderr to avoid pollution
+    out.write(','.join(get_no_proxy()))
