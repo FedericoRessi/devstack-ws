@@ -60,7 +60,7 @@ Vagrant.configure(2) do |config|
       vb.cpus = vm_cpus      # VM CPU cores
   end
 
-  if vm_git_proxy_wrapper != ""
+  if vm_git_proxy_wrapper != nil
       config.vm.provision "file",
           source: vm_git_proxy_wrapper,
           destination: "/home/vagrant/git_proxy_wrapper"
