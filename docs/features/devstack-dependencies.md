@@ -10,4 +10,4 @@ Provide VMs with devstack dependencies
 * Tox
 * ...
 
-For more details look at [provisioning script](../../scripts/provision.sh).
+For more details look at [provisioning script](../../scripts/provision.sh#L34-L54).
