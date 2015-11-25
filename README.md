@@ -1,13 +1,13 @@
 Simple workspace for running code and tests on vagrant provisioned VM
 
-### Goal
+## Goal
 
 Prepare workspace toolset for working with devstack and vagrant. 
 
-### Features
+## Features
 * Support multiple [Linux distributions](docs/features/linux-distributions.md)
 * Provide VMs with [devstack dependencies](docs/features/devstack-dependencies.md)
-* Deploy devstack and other git sub-repos to /opt/stack
+* [Deploy OpenStack](docs/features/devstack-dependencies.md) repos to /opt/stack
 * Forward proxy auto-confguration
 * Support autoenv: PLANNED
 * Run stack.sh on vagrant: PLANNED
