@@ -3,7 +3,7 @@
 Support for multiple distributions
 
 ## Mature support
-* trusty - Ubuntu Linux 14.04 LTS (Mature)
+* trusty - Ubuntu Linux 14.04 LTS
 
 ## Planned support
 * centos7 - CentOS 7
