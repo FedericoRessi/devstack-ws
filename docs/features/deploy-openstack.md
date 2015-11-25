@@ -15,7 +15,7 @@ git clone https://github.com/FedericoRessi/devstack-ws.git my_workspace
 cd my_workspace
 ```
 
-Edit local.conf contained in your workspace
+Edit [local.conf](../../local.conf) contained in your workspace
 ```bash
 nano local.conf
 ```
