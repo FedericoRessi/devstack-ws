@@ -24,7 +24,8 @@ Now clone some git repo inside of it and edit them
 ```bash
 git clone https://git.openstack.org/openstack/networking-odl
 cd networking-odl
-git fetch https://review.openstack.org/openstack/networking-odl refs/changes/12/215612/23 && git checkout FETCH_HEAD
+git fetch https://review.openstack.org/openstack/networking-odl refs/changes/12/215612/23
+git checkout FETCH_HEAD
 ```
 
 Start a VM based on your [favorite linux distribution](linux-distributions.md), install devstack and its dependencies and deploy a copy of networking-odl:
