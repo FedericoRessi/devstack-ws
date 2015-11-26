@@ -8,6 +8,7 @@ Prepare workspace toolset for working with devstack and vagrant.
 * Support multiple [Linux distributions](docs/features/linux-distributions.md)
 * Provide VMs with [devstack dependencies](docs/features/devstack-dependencies.md)
 * [Deploy OpenStack](docs/features/deploy-openstack.md) repos to /opt/stack
+* Network configuration (UNDOCUMENTED)
 * Provide [proxy auto-confguration](docs/features/proxy-autoconf.md)
 
 ## Planned features
