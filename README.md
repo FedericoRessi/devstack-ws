@@ -13,6 +13,7 @@ Prepare workspace toolset for working with devstack and vagrant.
 ## Planned features
 * Integrate with autoenv ([issue #1](https://github.com/FedericoRessi/devstack-ws/issues/1))
 * Run stack.sh in VM ([issue #2](https://github.com/FedericoRessi/devstack-ws/issues/2))
+* Writes log files to workspace directory ([issue #3](https://github.com/FedericoRessi/devstack-ws/issues/3))
 * Run tox on vagrant: PLANNED
 * Support GIT subrepos: PLANNED
 * Run on jenkins: PLANNED
