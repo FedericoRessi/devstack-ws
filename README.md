@@ -9,8 +9,8 @@ Prepare workspace toolset for working with devstack and vagrant.
 * Provide VMs with [devstack dependencies](docs/features/devstack-dependencies.md)
 * [Deploy OpenStack](docs/features/deploy-openstack.md) repos to /opt/stack
 * Provide [proxy auto-confguration](docs/features/proxy-autoconf.md)
-* Support autoenv: PLANNED
-* Run stack.sh on vagrant: PLANNED
+* Integrate with autoenv: #1
+* Run stack.sh in VM: #2
 * Run tox on vagrant: PLANNED
 * Support GIT subrepos: PLANNED
 * Run on jenkins: PLANNED
