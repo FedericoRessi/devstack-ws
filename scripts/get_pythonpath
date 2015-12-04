@@ -1,0 +1,37 @@
+#!/usr/bin/env python
+
+import os
+import sys
+
+
+def get_subdirs(path):
+    path = os.path.abspath(path)
+    return (os.path.join(path, e) for e in os.listdir(path) if os.path.isdir(e))
+
+def get_subrepos(path):
+    return (subdir
+            for subdir in get_subdirs(path)
+            if os.path.isdir(os.path.join(subdir, '.git')))
+
+def get_python_packages(path):
+    return (subdir
+            for subdir in get_subdirs(path)
+            if os.path.isfile(os.path.join(subdir, '__init__.py')))
+
+def get_pythonpath(base_dir=None):
+    new_pythonpath = []
+    for subrepo in get_subrepos(base_dir or os.getcwd()):
+        for _ in get_python_packages(subrepo):
+            new_pythonpath.append(subrepo)
+            break # append each subrepo only once
+
+    old_pythonpath = [
+        entry for entry in os.environ.get('PYTHONPATH', '').split(':')
+        if entry not in new_pythonpath and os.path.isdir(entry)]
+        
+    return new_pythonpath + old_pythonpath
+
+if __name__ == '__main__':
+    out = sys.stdout
+    sys.stdout = sys.stderr  # redirect stdout to stderr to avoid pollution
+    out.write(':'.join(get_pythonpath()))
