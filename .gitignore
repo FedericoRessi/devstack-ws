@@ -2,3 +2,7 @@
 devstack/
 networking-odl/
 requirements/
+horizon/
+keystone/
+neutron/
+nova/
