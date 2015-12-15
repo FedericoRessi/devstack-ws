@@ -34,22 +34,21 @@ fi
 export DISTRIB_ID DISTRIB_RELEASE DISTRIB_CODENAME DISTRIB_DESCRIPTION
 
 if which apt-get 2> /dev/null; then
-    DISTRIB_INSTALLER="apt-get install -y"
+    PACKAGER="apt-get"
 
 elif which dnf 2> /dev/null; then
-    DISTRIB_INSTALLER="dnf install -y"
+    PACKAGER="dnf"
 
 elif which yum 2> /dev/null; then
-    DISTRIB_INSTALLER="yum install -y"
+    PACKAGER="yum"
 
 else
-    DISTRIB_INSTALLER="false"
-
     echo "Unsupported distribution."
     cat /etc/*-release
+    exit 1
 fi
 
-export DISTRIB_INSTALLER
+export PACKAGER
 
 
 function is_ubuntu {
@@ -65,5 +64,5 @@ function is_centos {
 }
 
 function install_package {
-    sudo $DISTRIB_INSTALLER "$@"
+    sudo $PACKAGER install -y "$@"
 }

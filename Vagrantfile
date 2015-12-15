@@ -7,18 +7,36 @@
 vm_cpus = 2
 
 # megabytes of RAM for every VM
-vm_memory = 8096
+vm_memory = 4096
+
+
+vm_boxes = {
+    "precise"  => "ubuntu/precise64",
+    "trusty"   => "ubuntu/trusty64",
+    "vivid"    => "ubuntu/vivid64",
+    "wily"     => "ubuntu/wily64",
+    "fedora21" => "box-cutter/fedora21",
+    "fedora22" => "box-cutter/fedora22",
+    "fedora23" => "box-cutter/fedora23",
+    "centos7"  => "puppetlabs/centos-7.0-64-nocm"}
+
+vm_box_name = ENV["VAGRANT_BOX_NAME"]
+if vm_box_name == nil
+    vm_box_name = "trusty"
+end
 
 # available VM images
 vm_images = [
-  ["precise", "ubuntu/precise64"],
-  ["trusty", "ubuntu/trusty64"],
-  ["vivid", "ubuntu/vivid64"],
-  ["wily", "ubuntu/wily64"],
-  ["fedora21", "box-cutter/fedora21"],
-  ["fedora22", "box-cutter/fedora22"],
-  ["fedora23", "box-cutter/fedora23"],
-  ["centos7", "puppetlabs/centos-7.0-64-nocm"]]
+    ["control",
+     vm_box_name,
+     'control.local.conf',
+     '192.168.99.11'],
+    
+    ["compute",
+     vm_box_name,
+     'compute.local.conf',
+     '192.168.99.12'],
+]
 
 git_proxy_wrapper = ENV["GIT_PROXY_COMMAND"]
 
@@ -30,55 +48,67 @@ no_proxy = ENV["no_proxy"]
 
 Vagrant.configure(2) do |config|
 
-  # For every available VM image
-  vm_images.each do |vm_name, vm_image|
-    config.vm.define vm_name do |conf|
-      conf.vm.box = vm_image
-      # conf.vm.hostname = vm_name
+    # For every available VM image
+    vm_images.each do |vm_name, vm_image, local_dot_conf, vm_ip|
+        config.vm.define vm_name do |conf|
+            conf.vm.box = vm_boxes[vm_image]
+            conf.vm.hostname = vm_name
+            
+            # control network
+            conf.vm.network "private_network", ip: vm_ip,
+            virtualbox__intnet: "intnet1", auto_config: true
 
-      conf.vm.network "private_network", type: "dhcp",
-          virtualbox__intnet: "intnet1", auto_config: false
-      conf.vm.network "private_network", type: "dhcp",
-          virtualbox__intnet: "intnet2", auto_config: false
+            conf.vm.network "private_network", type: "dhcp",
+            virtualbox__intnet: "intnet2", auto_config: false
+            conf.vm.network "private_network", type: "dhcp",
+            virtualbox__intnet: "intnet3", auto_config: false
 
-      # assign a different random port to every vm instance
-      # this avoid concurrency problems when running tests in parallel
-      conf.vm.network :forwarded_port, guest: 22, host: 22000 + rand(9999),
-        id: "ssh", auto_correct: true
-      conf.vm.network :forwarded_port, guest: 8080, host: 8080,
-        id: "odl", auto_correct: true
-      conf.vm.network :forwarded_port, guest: 80, host: 8000,
-        id: "openstack", auto_correct: true
+            # assign a different random port to every vm instance
+            # this avoid concurrency problems when running tests in parallel
+            conf.vm.network :forwarded_port, guest: 22, host: 22000 + rand(9999),
+                id: "ssh", auto_correct: true
+            
+            if vm_name == 'control'
+                conf.vm.network :forwarded_port, guest: 8080, host: 8080,
+                    id: "odl", auto_correct: true
+                conf.vm.network :forwarded_port, guest: 80, host: 8000,
+                    id: "openstack", auto_correct: true
+            end
+        end
+
+        config.vm.provision "file",
+            source: local_dot_conf,
+            destination: "/home/vagrant/local.conf"
+
     end
-  end
 
-  config.vm.provider "virtualbox" do |vb|
-      # Display the VirtualBox GUI when booting the machine
-      vb.gui = false
+    config.vm.provider "virtualbox" do |vb|
+        # Display the VirtualBox GUI when booting the machine
+        vb.gui = false
 
-      vb.memory = vm_memory  # VM ram
-      vb.cpus = vm_cpus      # VM CPU cores
-  end
-
-  if Vagrant.has_plugin?("vagrant-proxyconf")
-    if http_proxy != nil
-        config.proxy.http = http_proxy
+        vb.memory = vm_memory  # VM ram
+        vb.cpus = vm_cpus      # VM CPU cores
     end
-    if https_proxy != nil
-        config.proxy.https = https_proxy
-    end
-    if no_proxy != nil
-        config.proxy.no_proxy = no_proxy
-    end
-  end
 
-  if git_proxy_wrapper != nil
-      config.vm.provision "file",
-          source: git_proxy_wrapper,
-          destination: "/home/vagrant/git_proxy_wrapper"
-  end
+    if Vagrant.has_plugin?("vagrant-proxyconf")
+        if http_proxy != nil
+            config.proxy.http = http_proxy
+        end
+        if https_proxy != nil
+            config.proxy.https = https_proxy
+        end
+        if no_proxy != nil
+            config.proxy.no_proxy = no_proxy
+        end
+    end
 
-  config.vm.provision "shell", inline: <<-SHELL
-    su -l vagrant /vagrant/scripts/provision.sh
-  SHELL
+    if git_proxy_wrapper != nil
+        config.vm.provision "file",
+        source: git_proxy_wrapper,
+        destination: "/home/vagrant/git_proxy_wrapper"
+    end
+
+    config.vm.provision "shell", inline: <<-SHELL
+        su -l vagrant /vagrant/scripts/provision.sh
+    SHELL
 end

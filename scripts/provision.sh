@@ -41,12 +41,15 @@ if is_ubuntu; then
         libffi-dev libssl-dev libxml2-dev libxslt1-dev\
         python2.7 python2.7-dev python3 python3-dev python-setuptools
 else
-    sudo yum update -y
-    sudo yum upgrade -y
+    sudo $PACKAGER update -y 
     install_package git rsync bridge-utils unzip screen tar\
         libvirt libvirt-python automake gcc patch net-tools ntp socat\
         libffi-devel openssl-devel redhat-rpm-configrpm\
         python python-devel python3 python3-devel
+fi
+
+if is_ubuntu; the
+    sudo apt-get install linux-generic-lts-vivid    
 fi
 
 # Upgrade PIP and other Python packages
@@ -77,6 +80,6 @@ fi
 if ! [ -d "./devstack" ]; then
     git clone "https://git.openstack.org/openstack-dev/devstack" "devstack"
 fi
-cp -fv "/vagrant/local.conf" "/opt/stack/devstack"
+cp -fv "/home/vagrant/local.conf" "/opt/stack/devstack"
 
 echo $0': SUCCESS'
