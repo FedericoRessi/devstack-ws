@@ -77,6 +77,14 @@ fi
 if ! [ -d "./devstack" ]; then
     git clone "https://git.openstack.org/openstack-dev/devstack" "devstack"
 fi
-cp -fv "/home/vagrant/local.conf" "/opt/stack/devstack"
+
+case $(hostname) in
+    control* )
+        cp -fv "/vagrant/control.local.conf"\
+               "/opt/stack/devstack/local.conf";;
+    compute* )
+        cp -fv "/vagrant/compute.local.conf"\
+               "/opt/stack/devstack/local.conf";;
+esac
 
 echo $0': SUCCESS'

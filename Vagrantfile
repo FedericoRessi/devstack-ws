@@ -29,12 +29,10 @@ end
 vm_images = [
     ["control",
      vm_box_name,
-     'control.local.conf',
      '192.168.99.11'],
     
     ["compute",
      vm_box_name,
-     'compute.local.conf',
      '192.168.99.12'],
 ]
 
@@ -49,7 +47,7 @@ no_proxy = ENV["no_proxy"]
 Vagrant.configure(2) do |config|
 
     # For every available VM image
-    vm_images.each do |vm_name, vm_image, local_dot_conf, vm_ip|
+    vm_images.each do |vm_name, vm_image, vm_ip|
         config.vm.define vm_name do |conf|
             conf.vm.box = vm_boxes[vm_image]
             conf.vm.hostname = vm_name
@@ -73,13 +71,9 @@ Vagrant.configure(2) do |config|
                     id: "odl", auto_correct: true
                 conf.vm.network :forwarded_port, guest: 80, host: 8000,
                     id: "openstack", auto_correct: true
+
             end
         end
-
-        config.vm.provision "file",
-            source: local_dot_conf,
-            destination: "/home/vagrant/local.conf"
-
     end
 
     config.vm.provider "virtualbox" do |vb|
@@ -104,8 +98,8 @@ Vagrant.configure(2) do |config|
 
     if git_proxy_wrapper != nil
         config.vm.provision "file",
-        source: git_proxy_wrapper,
-        destination: "/home/vagrant/git_proxy_wrapper"
+            source: git_proxy_wrapper,
+            destination: "/home/vagrant/git_proxy_wrapper"
     end
 
     config.vm.provision "shell", inline: <<-SHELL
