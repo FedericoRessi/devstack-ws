@@ -39,17 +39,14 @@ if is_ubuntu; then
     install_package git ebtables bridge-utils dkms module-assistant\
         build-essential curl socat\
         libffi-dev libssl-dev libxml2-dev libxslt1-dev\
-        python2.7 python2.7-dev python3 python3-dev python-setuptools
+        python2.7 python2.7-dev python3 python3-dev python-setuptools\
+        linux-generic-lts-vivid
 else
     sudo $PACKAGER update -y 
     install_package git rsync bridge-utils unzip screen tar\
         libvirt libvirt-python automake gcc patch net-tools ntp socat\
         libffi-devel openssl-devel redhat-rpm-configrpm\
         python python-devel python3 python3-devel
-fi
-
-if is_ubuntu; the
-    sudo apt-get install linux-generic-lts-vivid    
 fi
 
 # Upgrade PIP and other Python packages
