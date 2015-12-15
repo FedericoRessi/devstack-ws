@@ -4,10 +4,10 @@
 # --- VMs configuration -------------------------------------------------------
 
 # number of CPUs for every VM
-vm_cpus = 1
+vm_cpus = 2
 
 # megabytes of RAM for every VM
-vm_memory = 4096
+vm_memory = 8096
 
 # available VM images
 vm_images = [
