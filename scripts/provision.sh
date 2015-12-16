@@ -62,6 +62,12 @@ if ! cd "/opt/stack" 2> /dev/null; then
     cd "/opt/stack"
 fi
 
+LOGS_DIR=/vagrant/logs/$(hostname)
+if [ ! -d $./logs ]; then
+	mkdir -p $LOGS_DIR
+	ln -sfn $LOGS_DIR ./logs
+fi
+
 GIT_REPOS=$(ls -d /vagrant/*/.git 2> /dev/null || true)
 GIT_REPOS=$(dirname $GIT_REPOS 2> /dev/null || true) 
 if [[ $GIT_REPOS != "" ]]; then

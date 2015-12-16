@@ -6,3 +6,9 @@ horizon/
 keystone/
 neutron/
 nova/
+cinder/
+glance/
+networking-ovs-dpdk/
+tempest/
+logs/
+
