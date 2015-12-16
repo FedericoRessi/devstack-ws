@@ -16,16 +16,17 @@ control-up compute-up: $(LOG_DIR)
 
 
 control compute: $(LOG_DIR)
-	vagrant reload $@ > $(call LOG_FILE,03-$@-reboot)
 	vagrant ssh $@ -c "cd /opt/stack/devstack && ./stack.sh" > $(call LOG_FILE,04-$@-stack)
 
 
 control-up:
 	vagrant up control > $(call LOG_FILE,01-control-up)
+	vagrant reload control > $(call LOG_FILE,02-control-reboot)
 
 
 compute-up:
 	vagrant up compute > $(call LOG_FILE,01-compute-up)
+	vagrant reload compute > $(call LOG_FILE,02-compute-reboot)
 
 
 test-connectivity: control-up compute-up
