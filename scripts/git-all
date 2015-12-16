@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if ! GIT_REPOS=$(ls -d */.git 2>/dev/null); then
+    exit 0
+fi
+
+for REPO in $GIT_REPOS; do
+    echo
+   
+    DIR=$(dirname $REPO)
+    if ! pushd $DIR > /dev/null; then
+        exit 1
+    fi
+
+    echo "[$DIR]"
+    if ! git "$@"; then
+        exit 2
+    fi
+
+    popd > /dev/null
+    echo
+done
