@@ -26,11 +26,13 @@ vm_images = [
     ["control",
      vm_box_name,
      '192.168.99.11',
+     '192.168.50.11',
     8192],
     
     ["compute",
      vm_box_name,
      '192.168.99.12',
+     '192.168.50.12',
      4096],
 ]
 
@@ -45,18 +47,18 @@ no_proxy = ENV["no_proxy"]
 Vagrant.configure(2) do |config|
 
     # For every available VM image
-    vm_images.each do |vm_name, vm_image, vm_ip, vm_memory|
+    vm_images.each do |vm_name, vm_image, vm_ip1, vm_ip2, vm_memory|
         config.vm.define vm_name do |conf|
             conf.vm.box = vm_boxes[vm_image]
             conf.vm.hostname = vm_name
             # control network
-            conf.vm.network "private_network", ip: vm_ip,
-            virtualbox__intnet: "intnet1", auto_config: true
-
+            conf.vm.network "private_network", ip: vm_ip1,
+                virtualbox__intnet: "intnet1", auto_config: true
+            # tenent network
+            conf.vm.network "private_network", ip: vm_ip2,
+                virtualbox__intnet: "intnet2", auto_config: true
             conf.vm.network "private_network", type: "dhcp",
-            virtualbox__intnet: "intnet2", auto_config: false
-            conf.vm.network "private_network", type: "dhcp",
-            virtualbox__intnet: "intnet3", auto_config: false
+                virtualbox__intnet: "intnet3", auto_config: false
 
             # assign a different random port to every vm instance
             # this avoid concurrency problems when running tests in parallel
@@ -72,11 +74,11 @@ Vagrant.configure(2) do |config|
             end
            
             conf.vm.provider "virtualbox" do |vb|
-        		# Display the VirtualBox GUI when booting the machine
-        		vb.gui = false
-		        vb.memory = vm_memory  # VM ram
-		        vb.cpus = vm_cpus      # VM CPU cores
-		    end
+               # Display the VirtualBox GUI when booting the machine
+               vb.gui = false
+               vb.memory = vm_memory  # VM ram
+               vb.cpus = vm_cpus      # VM CPU cores
+            end
         end
     end
 
