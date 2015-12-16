@@ -66,8 +66,8 @@ Vagrant.configure(2) do |config|
                 id: "ssh", auto_correct: true
             
             if vm_name == 'control'
-                conf.vm.network :forwarded_port, guest: 8080, host: 8080,
-                    id: "odl", auto_correct: true
+                conf.vm.network :forwarded_port, guest: 6080, host: 6080,
+                    id: "vnc-console", auto_correct: true
                 conf.vm.network :forwarded_port, guest: 80, host: 8000,
                     id: "openstack", auto_correct: true
 
