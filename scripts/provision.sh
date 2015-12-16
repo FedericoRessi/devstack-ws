@@ -39,10 +39,10 @@ if is_ubuntu; then
     install_package git ebtables bridge-utils dkms module-assistant\
         build-essential curl socat\
         libffi-dev libssl-dev libxml2-dev libxslt1-dev\
-        python2.7 python2.7-dev python3 python3-dev python-setuptools
+        python2.7 python2.7-dev python3 python3-dev python-setuptools\
+        linux-generic-lts-vivid
 else
-    sudo yum update -y
-    sudo yum upgrade -y
+    sudo $PACKAGER update -y 
     install_package git rsync bridge-utils unzip screen tar\
         libvirt libvirt-python automake gcc patch net-tools ntp socat\
         libffi-devel openssl-devel redhat-rpm-configrpm\
@@ -62,6 +62,12 @@ if ! cd "/opt/stack" 2> /dev/null; then
     cd "/opt/stack"
 fi
 
+LOGS_DIR=/vagrant/logs/$(hostname)
+if [ ! -d $./logs ]; then
+	mkdir -p $LOGS_DIR
+	ln -sfn $LOGS_DIR ./logs
+fi
+
 GIT_REPOS=$(ls -d /vagrant/*/.git 2> /dev/null || true)
 GIT_REPOS=$(dirname $GIT_REPOS 2> /dev/null || true) 
 if [[ $GIT_REPOS != "" ]]; then
@@ -77,6 +83,14 @@ fi
 if ! [ -d "./devstack" ]; then
     git clone "https://git.openstack.org/openstack-dev/devstack" "devstack"
 fi
-cp -fv "/vagrant/local.conf" "/opt/stack/devstack"
+
+case $(hostname) in
+    control* )
+        cp -fv "/vagrant/control.local.conf"\
+               "/opt/stack/devstack/local.conf";;
+    compute* )
+        cp -fv "/vagrant/compute.local.conf"\
+               "/opt/stack/devstack/local.conf";;
+esac
 
 echo $0': SUCCESS'
