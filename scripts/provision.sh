@@ -41,6 +41,7 @@ if is_ubuntu; then
         libffi-dev libssl-dev libxml2-dev libxslt1-dev\
         python2.7 python2.7-dev python3 python3-dev python-setuptools\
         linux-generic-lts-vivid
+    sudo apt-get autoremove -y
 else
     sudo $PACKAGER update -y 
     install_package git rsync bridge-utils unzip screen tar\
