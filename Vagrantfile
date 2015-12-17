@@ -4,7 +4,7 @@
 # --- VMs configuration -------------------------------------------------------
 
 # number of CPUs for every VM
-vm_cpus = 2
+vm_cpus = `python -c "import multiprocessing; multiprocessing.cpu_count()"`.to_i
 
 vm_boxes = {
     "precise"  => "ubuntu/precise64",
