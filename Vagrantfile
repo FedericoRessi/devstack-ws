@@ -7,7 +7,7 @@
 host_cpus = `python -c "import multiprocessing; print multiprocessing.cpu_count()"`.to_i
 vm_cpus = ENV['VAGRANT_CPUS']
 if vm_cpus == nil
-	vm_cpus = host_cpus / 4
+	vm_cpus = host_cpus / 2
 end
 
 vm_cpus = [vm_cpus, host_cpus, 32].min
