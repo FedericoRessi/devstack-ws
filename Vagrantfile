@@ -4,7 +4,13 @@
 # --- VMs configuration -------------------------------------------------------
 
 # number of CPUs for every VM
-vm_cpus = `python -c "import multiprocessing; multiprocessing.cpu_count()"`.to_i
+host_cpus = `python -c "import multiprocessing; print multiprocessing.cpu_count()"`.to_i
+vm_cpus = ENV['VAGRANT_CPUS']
+if vm_cpus == nil
+	vm_cpus = host_cpus / 4
+end
+
+vm_cpus = [vm_cpus, host_cpus, 32].min
 
 vm_boxes = {
     "precise"  => "ubuntu/precise64",
@@ -27,7 +33,7 @@ vm_images = [
      vm_box_name,
      '192.168.99.11',
      '192.168.50.11',
-    8192],
+     8192],
     
     ["compute",
      vm_box_name,
@@ -37,7 +43,6 @@ vm_images = [
 ]
 
 git_proxy_wrapper = ENV["GIT_PROXY_COMMAND"]
-
 http_proxy = ENV["http_proxy"]
 https_proxy = ENV["https_proxy"]
 no_proxy = ENV["no_proxy"]
