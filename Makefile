@@ -10,7 +10,7 @@ clean:
 
 control: control-up
 
-compute: compute-up test-connectivity
+compute: control test-connectivity
 
 control-up compute-up: $(LOG_DIR)
 
