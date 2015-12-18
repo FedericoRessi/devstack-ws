@@ -20,7 +20,7 @@ update-boxes:
 control-up:
 	vagrant up control > $(call LOG_FILE,01-control-up) 2>&1
 
-networking-odl: control-up
+networking-odl:
 	if [ -d $@ ]; then vagrant ssh control -c 'cd /vagrant/$@ && tox -v' > $(call LOG_FILE,02-control-$@) 2>&1; fi
 
 control:
