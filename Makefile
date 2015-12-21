@@ -9,7 +9,7 @@ control: control-up
 
 compute: control compute-up
 
-control-up compute-up: update-boxes
+# control-up compute-up: update-boxes
 
 update-boxes tox-networking-odl: $(LOG_DIR)
 
