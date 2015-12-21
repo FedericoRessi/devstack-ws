@@ -1,0 +1,2 @@
+guest_cpus: 2 # get a number "razonable" for your host
+vagrant_box_name: centos

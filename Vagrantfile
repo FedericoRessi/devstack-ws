@@ -1,42 +1,78 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-# --- VMs configuration -------------------------------------------------------
+require 'yaml'
 
-# number of CPUs for every VM
+
+def get_global_conf()
+	if File.file?('conf.yaml')
+		return YAML.load_file('conf.yaml')
+	else
+		return {}
+
+def get_guest_conf(global_conf, guest_class)
+	conf_file_name = "#{guest_class}.conf.yaml"
+	if File.file?(conf_file_name)
+  		return global_conf.merge(YAML.load_file(conf_file_name)
+  	else
+  		return global_conf
+	end
+
+def get_string_option(guest_class, guest_conf, option_name)
+	value = ENV[option_name"]
+	if value == nil
+		
+
+
+
+def get_guest_cpus(conf, quest_name)
 host_cpus = `python -c "import multiprocessing; print multiprocessing.cpu_count()"`.to_i
-vm_cpus = ENV['VAGRANT_CPUS']
-if vm_cpus == nil
-	vm_cpus = host_cpus / 2
+guest_cpus = ENV['GUEST_CPUS'].to_i
+if guest_cpus < 1
+	guest_cpus = conf["guest_cpus"].to_i
+	if guest_cpus < 1
+		guest_cpus = host_cpus / 2
+	end
 end
 
-vm_cpus = [vm_cpus, host_cpus, 32].min
+guest_cpus = [1, [guest_cpus, host_cpus, 32].min].max
+print "guest_cpus: ", guest_cpus, "\n"
 
-vm_boxes = {
-    "precise"  => "ubuntu/precise64",
-    "trusty"   => "ubuntu/trusty64",
-    "vivid"    => "ubuntu/vivid64",
-    "wily"     => "ubuntu/wily64",
-    "fedora21" => "box-cutter/fedora21",
-    "fedora22" => "box-cutter/fedora22",
-    "fedora23" => "box-cutter/fedora23",
-    "centos7"  => "puppetlabs/centos-7.0-64-nocm"}
+# --- vagrant box -------------------------------------------------------------
 
-vm_box_name = ENV["VAGRANT_BOX_NAME"]
-if vm_box_name == nil
-    vm_box_name = "trusty"
+vagrant_boxes = {
+    "ubuntu"   => "ubuntu/trusty64",
+    "centos"  => "centos/7",
+    "fedora" => "box-cutter/fedora22"}
+
+vagrant_box_name = ENV["VAGRANT_BOX_NAME"]
+if vagrant_box_name == nil
+	vagrant_box_name = conf["vagrant_box_name"]
+	if vagrant_box_name == nil
+		vagrant_box_name = "ubuntu"
+	end
 end
+
+vagrant_box = ENV["VAGRANT_BOX"]
+if vagrant_box == nil
+	vagrant_box = conf["vagrant_box"]
+	if vagrant_box == nil
+		vagrant_box = vagrant_boxes[vagrant_box_name]
+	end
+end
+
+print "vagrant_box: ", vagrant_box, "\n"
+
+# --- vagrant nodes -------------------------------------------------------------
 
 # available VM images
 vm_images = [
     ["control",
-     vm_box_name,
      '192.168.99.11',
      '192.168.50.11',
      8192],
     
     ["compute",
-     vm_box_name,
      '192.168.99.12',
      '192.168.50.12',
      4096],
@@ -52,9 +88,9 @@ no_proxy = ENV["no_proxy"]
 Vagrant.configure(2) do |config|
 
     # For every available VM image
-    vm_images.each do |vm_name, vm_image, vm_ip1, vm_ip2, vm_memory|
+    vm_images.each do |vm_name, vm_ip1, vm_ip2, vm_memory|
         config.vm.define vm_name do |conf|
-            conf.vm.box = vm_boxes[vm_image]
+            conf.vm.box = vagrant_box
             conf.vm.hostname = vm_name
             # control network
             conf.vm.network "private_network", ip: vm_ip1,
@@ -82,7 +118,7 @@ Vagrant.configure(2) do |config|
                # Display the VirtualBox GUI when booting the machine
                vb.gui = false
                vb.memory = vm_memory  # VM ram
-               vb.cpus = vm_cpus      # VM CPU cores
+               vb.cpus = guest_cpus      # VM CPU cores
             end
         end
     end
