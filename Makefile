@@ -1,9 +1,9 @@
 LOG_DIR = logs
-LOG_FILE = $(LOG_DIR)/$(1).log
+LOG_FILE = $(abspath $(LOG_DIR)/$(1).log)
 
-all: networking-odl control compute
+SHELL := /bin/bash
 
-networking-odl: control-up
+all: tox-networking-odl control compute
 
 control: control-up
 
@@ -11,17 +11,17 @@ compute: control compute-up
 
 control-up compute-up: update-boxes
 
-update-boxes: $(LOG_DIR)
+update-boxes tox-networking-odl: $(LOG_DIR)
 
 
 update-boxes:
-	vagrant box update > $(call LOG_FILE,00-update-boxes) 2>&1
+	vagrant box update > $(call LOG_FILE,01-host-update-boxes) 2>&1
 
 control-up:
 	vagrant up control > $(call LOG_FILE,01-control-up) 2>&1
 
-networking-odl:
-	if [ -d $@ ]; then vagrant ssh control -c 'cd /vagrant/$@ && tox -v' > $(call LOG_FILE,02-control-$@) 2>&1; fi
+tox-networking-odl:
+	cd networking-odl && tox -v > $(call LOG_FILE,01-host-$@) 2>&1
 
 control:
 	vagrant ssh control -c "cd /opt/stack/devstack && ./unstack.sh" || true > $(call LOG_FILE,03-control-unstack) 2>&1
@@ -44,3 +44,5 @@ clean:
 
 $(LOG_DIR):
 	mkdir -p "$@"
+
+.PHONY: clean compute compute-up control control-up update-boxes tox-networking-odl
