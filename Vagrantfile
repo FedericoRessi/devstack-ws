@@ -79,10 +79,12 @@ Vagrant.configure(2) do |config|
             end
            
             conf.vm.provider "virtualbox" do |vb|
-               # Display the VirtualBox GUI when booting the machine
-               vb.gui = false
-               vb.memory = vm_memory  # VM ram
-               vb.cpus = vm_cpus      # VM CPU cores
+                # Display the VirtualBox GUI when booting the machine
+                vb.gui = false
+                vb.memory = vm_memory  # VM ram
+                vb.cpus = vm_cpus      # VM CPU cores
+                # openstack guests to talk to each other
+                vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
             end
         end
     end
