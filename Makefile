@@ -11,7 +11,7 @@ compute: control compute-up
 
 # control-up compute-up: update-boxes
 
-update-boxes tox-networking-odl: $(LOG_DIR)
+update-boxes tox-networking-odl control-up compute-up: $(LOG_DIR)
 
 
 update-boxes:
@@ -21,10 +21,10 @@ control-up:
 	vagrant up control > $(call LOG_FILE,01-control-up) 2>&1
 
 tox-networking-odl:
-	cd networking-odl && tox -v > $(call LOG_FILE,01-host-$@) 2>&1
+	cd networking-odl && tox -v -e pep8,py27 > $(call LOG_FILE,01-host-$@) 2>&1
 
 control:
-	vagrant ssh control -c "cd /opt/stack/devstack && ./unstack.sh" || true > $(call LOG_FILE,03-control-unstack) 2>&1
+	vagrant ssh control -c "cd /opt/stack/devstack && ./unstack.sh" > $(call LOG_FILE,03-control-unstack) 2>&1 || true
 	vagrant ssh control -c "cd /opt/stack/devstack && ./stack.sh" > $(call LOG_FILE,04-control-stack) 2>&1
 
 compute-up:
@@ -33,8 +33,8 @@ compute-up:
 compute:
 	# test connectivity with control node
 	vagrant ssh compute -c 'wget control:5000 -o /dev/null' > $(call LOG_FILE,02-test-connectivityk) 2>&1
-	vagrant ssh compute -c "cd /opt/stack/devstack && ./unstack.sh" || true > $(call LOG_FILE,03-compute-unstack) 2>&1
-	# make sure it uses last kernel
+	vagrant ssh compute -c "cd /opt/stack/devstack && ./unstack.sh" > $(call LOG_FILE,03-compute-unstack) 2>&1 || true
+	# make sure it uses the last kernel
 	vagrant reload compute > $(call LOG_FILE,04-compute-reboot) 2>&1
 	vagrant ssh compute -c "cd /opt/stack/devstack && ./stack.sh" > $(call LOG_FILE,05-compute-stack) 2>&1
 
