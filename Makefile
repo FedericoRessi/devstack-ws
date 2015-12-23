@@ -21,7 +21,7 @@ control-up:
 	vagrant up control > $(call LOG_FILE,01-control-up) 2>&1
 
 tox-networking-odl:
-	cd networking-odl && tox -v -e pep8,py27 > $(call LOG_FILE,01-host-$@) 2>&1
+	cd networking-odl && tox -v > $(call LOG_FILE,01-host-$@) 2>&1
 
 control:
 	vagrant ssh control -c "cd /opt/stack/devstack && ./unstack.sh" > $(call LOG_FILE,03-control-unstack) 2>&1 || true
