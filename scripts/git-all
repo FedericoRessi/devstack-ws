@@ -5,8 +5,6 @@ if ! GIT_REPOS=$(ls -d */.git 2>/dev/null); then
 fi
 
 for REPO in $GIT_REPOS; do
-    echo
-   
     DIR=$(dirname $REPO)
     if ! pushd $DIR > /dev/null; then
         exit 1
