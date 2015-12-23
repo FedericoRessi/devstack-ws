@@ -42,9 +42,11 @@ if is_ubuntu; then
         python2.7 python2.7-dev python3 python3-dev python-setuptools\
     
     # Disable app armor
-    sudo service apparmor stop
-    sudo update-rc.d -f apparmor remove
-    sudo apt-get remove apparmor apparmor-utils -y
+    if [ -r /lib/apparmor/functions ]; then
+        sudo service apparmor stop
+        sudo update-rc.d -f apparmor remove
+        sudo apt-get remove apparmor apparmor-utils -y
+    fi
 
     sudo apt-get autoremove -y
 else
