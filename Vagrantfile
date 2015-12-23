@@ -5,12 +5,7 @@
 
 # number of CPUs for every VM
 host_cpus = `python -c "import multiprocessing; print multiprocessing.cpu_count()"`.to_i
-vm_cpus = ENV['VAGRANT_CPUS']
-if vm_cpus == nil
-	vm_cpus = 2
-end
-
-vm_cpus = [vm_cpus, host_cpus, 32].min
+vm_cpus = [2, [ENV['VAGRANT_CPUS'].to_i, host_cpus, 32].min].max
 
 vm_boxes = {
     "precise"  => "ubuntu/precise64",
