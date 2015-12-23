@@ -37,10 +37,15 @@ if is_ubuntu; then
     sudo apt-get update -y
     sudo apt-get upgrade -y --force-yes
     install_package git ebtables bridge-utils dkms module-assistant\
-        build-essential curl socat\
+        build-essential curl socat fdutils linux-generic-lts-vivid\
         libffi-dev libssl-dev libxml2-dev libxslt1-dev\
         python2.7 python2.7-dev python3 python3-dev python-setuptools\
-        linux-generic-lts-vivid
+    
+    # Disable app armor
+    sudo service apparmor stop
+    sudo update-rc.d -f apparmor remove
+    sudo apt-get remove apparmor apparmor-utils -y
+
     sudo apt-get autoremove -y
 else
     sudo $PACKAGER update -y 
