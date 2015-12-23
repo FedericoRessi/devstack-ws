@@ -7,7 +7,7 @@
 host_cpus = `python -c "import multiprocessing; print multiprocessing.cpu_count()"`.to_i
 vm_cpus = ENV['VAGRANT_CPUS']
 if vm_cpus == nil
-	vm_cpus = host_cpus / 2
+	vm_cpus = 1
 end
 
 vm_cpus = [vm_cpus, host_cpus, 32].min
@@ -33,13 +33,13 @@ vm_images = [
      vm_box_name,
      '192.168.99.11',
      '192.168.50.11',
-     4096],
+     6144],
     
     ["compute",
      vm_box_name,
      '192.168.99.12',
      '192.168.50.12',
-     8192],
+     6144],
 ]
 
 git_proxy_wrapper = ENV["GIT_PROXY_COMMAND"]
