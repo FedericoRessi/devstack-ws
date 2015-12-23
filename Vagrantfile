@@ -33,13 +33,13 @@ vm_images = [
      vm_box_name,
      '192.168.99.11',
      '192.168.50.11',
-     8192],
+     4096],
     
     ["compute",
      vm_box_name,
      '192.168.99.12',
      '192.168.50.12',
-     4096],
+     8192],
 ]
 
 git_proxy_wrapper = ENV["GIT_PROXY_COMMAND"]
