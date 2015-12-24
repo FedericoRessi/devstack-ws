@@ -28,7 +28,7 @@ vm_images = [
      vm_box_name,
      '192.168.99.11',
      '192.168.50.11',
-     8192],
+     12288],
     
     ["compute",
      vm_box_name,
