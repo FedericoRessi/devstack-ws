@@ -25,6 +25,8 @@ tox-networking-odl:
 
 control:
 	vagrant ssh control -c "cd /opt/stack/devstack && ./unstack.sh" > $(call LOG_FILE,03-control-unstack) 2>&1 || true
+	# make sure it uses the last kernel
+	vagrant reload compute > $(call LOG_FILE,04-compute-reboot) 2>&1
 	vagrant ssh control -c "cd /opt/stack/devstack && ./stack.sh" > $(call LOG_FILE,04-control-stack) 2>&1
 
 compute-up:
