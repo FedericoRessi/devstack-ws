@@ -40,11 +40,11 @@ compute:
 	vagrant reload compute > $(call LOG_FILE,04-compute-reboot) 2>&1
 	vagrant ssh compute -c "cd /opt/stack/devstack && ./stack.sh" > $(call LOG_FILE,05-compute-stack) 2>&1
 
-clean:
+destroy:
 	vagrant destroy -f
-	rm -fR $(LOG_DIR) .vagrant/machines
+	rm -fR $(LOG_DIR)
 
-deep_clean: clean
+clean: destroy
 	rm -fR .vagrant .tox
 
 $(LOG_DIR):

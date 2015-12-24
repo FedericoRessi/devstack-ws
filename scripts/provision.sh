@@ -59,9 +59,14 @@ fi
 
 # Upgrade PIP and other Python packages
 install_package python-pip || sudo easy_install -U pip
-sudo pip install -U pip tox certifi pyopenssl ndg-httpsclient pyasn1
+PIP_ACCEL_DIR=/tmp/vagrant-cache/pip-accel
+mkdir -p $PIP_ACCEL_DIR/root $PIP_ACCEL_DIR/vagrant
+sudo ln -sfn $PIP_ACCEL_DIR/root /var/cache/pip-accel
+ln -sfn $PIP_ACCEL_DIR/vagrant ~/.pip-accel
+sudo pip install pip-accel
+sudo pip-accel install -U pip tox certifi pyopenssl ndg-httpsclient pyasn1	
 
-chown -fR vagrant.vagrant /home/vagrant
+sudo chown -fR vagrant.vagrant /home/vagrant
 
 # Populate /opt/stack ---------------------------------------------------------
 if ! cd "/opt/stack" 2> /dev/null; then

@@ -33,19 +33,18 @@ fi
 
 export DISTRIB_ID DISTRIB_RELEASE DISTRIB_CODENAME DISTRIB_DESCRIPTION
 
-if which apt-get 2> /dev/null; then
+if which apt-get > /dev/null 2>&1; then
     PACKAGER="apt-get"
 
-elif which dnf 2> /dev/null; then
+elif which dnf > /dev/null 2>&1; then
     PACKAGER="dnf"
 
-elif which yum 2> /dev/null; then
+elif which yum > /dev/null 2>&1; then
     PACKAGER="yum"
 
 else
     echo "Unsupported distribution."
     cat /etc/*-release
-    exit 1
 fi
 
 export PACKAGER
@@ -66,3 +65,7 @@ function is_centos {
 function install_package {
     sudo $PACKAGER install -y "$@"
 }
+
+if which pip-accel 2> /dev/null; then
+	export alias pip=pip-accel
+fi
