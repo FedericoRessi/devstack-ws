@@ -21,8 +21,6 @@ if [ -d "$CONF_DIR" ]; then
     fi
 fi
 
-source '/vagrant/scripts/distrib_properties.sh'
-
 # Add local IP addresses to /etc/hosts
 HOST_IPS=$(ip addr | awk '/inet /{split($2, a, "/"); print a[1]}')
 for IP in $HOST_IPS; do
@@ -63,8 +61,8 @@ PIP_ACCEL_DIR=/tmp/vagrant-cache/pip-accel
 mkdir -p $PIP_ACCEL_DIR/root $PIP_ACCEL_DIR/vagrant
 sudo ln -sfn $PIP_ACCEL_DIR/root /var/cache/pip-accel
 ln -sfn $PIP_ACCEL_DIR/vagrant ~/.pip-accel
-sudo pip install pip-accel
-sudo pip-accel install -U pip tox certifi pyopenssl ndg-httpsclient pyasn1	
+sudo pip install -U pip pip-accel
+sudo pip-accel install -U tox certifi pyopenssl ndg-httpsclient pyasn1	
 
 sudo chown -fR vagrant.vagrant /home/vagrant
 

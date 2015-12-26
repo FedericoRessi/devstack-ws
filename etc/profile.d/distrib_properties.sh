@@ -66,6 +66,10 @@ function install_package {
     sudo $PACKAGER install -y "$@"
 }
 
-if which pip-accel 2> /dev/null; then
-	export alias pip=pip-accel
+export DEBIAN_FRONTEND=noninteractive
+
+PIP_ACCEL=$(which pip-accel 2> /dev/null)
+if [ -x $PIP_ACCEL ]; then
+    alias sudo='sudo '
+    alias pip='echo Y | pip-accel'
 fi
