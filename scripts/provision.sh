@@ -18,8 +18,13 @@ if [ -d "$CONF_DIR" ]; then
     # Reload environment
     if [ -r "/etc/profile" ]; then
         set +ex; source "/etc/profile"; set -ex
+    else
+        echo "Unable to source '/etc/profile'!"
+        exit 1
     fi
 fi
+
+source "/vagrant/scripts/distrib_properties.sh"
 
 # Add local IP addresses to /etc/hosts
 HOST_IPS=$(ip addr | awk '/inet /{split($2, a, "/"); print a[1]}')
@@ -45,8 +50,6 @@ if is_ubuntu; then
         sudo update-rc.d -f apparmor remove
         sudo apt-get remove apparmor apparmor-utils -y
     fi
-
-    sudo apt-get autoremove -y
 else
     sudo $PACKAGER update -y 
     install_package git rsync bridge-utils unzip screen tar\
@@ -62,7 +65,8 @@ mkdir -p $PIP_ACCEL_DIR/root $PIP_ACCEL_DIR/vagrant
 sudo ln -sfn $PIP_ACCEL_DIR/root /var/cache/pip-accel
 ln -sfn $PIP_ACCEL_DIR/vagrant ~/.pip-accel
 sudo pip install -U pip pip-accel
-sudo pip-accel install -U tox certifi pyopenssl ndg-httpsclient pyasn1	
+sudo cp /usr/local/bin/pip-accel /usr/local/bin/pip 
+sudo pip install -U tox certifi pyopenssl ndg-httpsclient pyasn1
 
 sudo chown -fR vagrant.vagrant /home/vagrant
 
@@ -84,7 +88,7 @@ GIT_REPOS=$(dirname $GIT_REPOS 2> /dev/null || true)
 if [[ $GIT_REPOS != "" ]]; then
     for REPO in $GIT_REPOS; do
         echo "Deploying $REPO..."
-        if ! rsync -ua --delete --exclude-from="$REPO/.gitignore" "$REPO" "./"; then
+        if ! rsync -ua --delete --exclude=.tox --exclude-from="$REPO/.gitignore" "$REPO" "./"; then
             echo "Error deploying git repository $REPO to $(pwd)."
             exit 1
         fi
@@ -103,5 +107,9 @@ case $(hostname) in
         cp -fv "/vagrant/compute.local.conf"\
                "/opt/stack/devstack/local.conf";;
 esac
+
+if is_ubuntu; then
+    sudo apt-get autoremove -y
+fi
 
 echo $0': SUCCESS'
