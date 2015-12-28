@@ -1,0 +1,17 @@
+diff --git a/inc/python b/inc/python
+index c157604..fd09072 100644
+--- a/inc/python
++++ b/inc/python
+@@ -29,6 +29,12 @@ declare -A PROJECT_VENV
+ # get_pip_command
+ function get_pip_command {
+     local version="$1"
++
++    if [ -x "$PIP_COMMAND" ]; then
++        echo "$PIP_COMMAND"
++        return 0
++    fi
++
+     # NOTE(dhellmann): I don't know if we actually get a pip3.4-python
+     # under any circumstances.
+     which pip${version} || which pip${version}-python
