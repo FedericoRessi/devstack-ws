@@ -18,7 +18,7 @@ networking-odl: networking-odl-tox control
 
 control: control-up
 
-compute: control compute-up
+compute: compute-up
 
 control-up compute-up: box-update
 
@@ -48,9 +48,9 @@ control: $(LOG_DIR)
 	$(call VAGRANT_SSH,$@,cd /opt/stack/devstack && ./stack.sh)  # $@ stack
 
 compute: $(LOG_DIR)
-	$(call VAGRANT_SSH,$@,wget control:5000 -o /dev/null)  # $@ check-connectivity
 	$(call VAGRANT_SSH,$@,cd /opt/stack/devstack && ./unstack.sh) || true  # $@ unstack
 	vagrant reload $@  # $@ reboot
+	-$(call VAGRANT_SSH,$@,wget control:5000)  # $@ check-connectivity
 	$(call VAGRANT_SSH,$@,cd /opt/stack/devstack && ./stack.sh)  # $@ stack
 
 clean:
