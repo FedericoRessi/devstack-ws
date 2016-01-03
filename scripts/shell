@@ -96,7 +96,7 @@ def main(command):
             '    Exit code: %s\n'
             '    Log file: %s\n'
             '%s',
-            command_line[1], error.exit_code, log_path, tail(log_path))
+            command[1], error.exit_code, log_path, tail(log_path))
 
         return error.exit_code
 

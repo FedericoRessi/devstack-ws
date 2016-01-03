@@ -43,15 +43,15 @@ compute-up: $(LOG_DIR)
 	vagrant up compute  # $@
 
 control: $(LOG_DIR)
-	-$(call VAGRANT_SSH,$@,cd /opt/stack/devstack && ./unstack.sh)  # $@ unstack
+	$(call VAGRANT_SSH,$@,cd /opt/stack/devstack && ./unstack.sh) || true  # $@ unstack
 	vagrant reload $@  # $@ reboot
-	$(call VAGRANT_SSH,$@,cd /opt/stack/devstack && ./unstack.sh)  # $@ stack
+	$(call VAGRANT_SSH,$@,cd /opt/stack/devstack && ./stack.sh)  # $@ stack
 
 compute: $(LOG_DIR)
 	$(call VAGRANT_SSH,$@,wget control:5000 -o /dev/null)  # $@ check-connectivity
-	-$(call VAGRANT_SSH,$@,cd /opt/stack/devstack && ./unstack.sh)  # $@ unstack
+	$(call VAGRANT_SSH,$@,cd /opt/stack/devstack && ./unstack.sh) || true  # $@ unstack
 	vagrant reload $@  # $@ reboot
-	$(call VAGRANT_SSH,$@,cd /opt/stack/devstack && ./unstack.sh)  # $@ stack
+	$(call VAGRANT_SSH,$@,cd /opt/stack/devstack && ./stack.sh)  # $@ stack
 
 clean:
 	rm -fR .vagrant .tox
