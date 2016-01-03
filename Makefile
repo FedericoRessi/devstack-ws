@@ -34,7 +34,7 @@ networking-odl-tox: $(LOG_DIR)
 	cd networking-odl && tox -v  # $@
 
 box-update: $(LOG_DIR)
-	-vagrant box update  # $@
+	vagrant box update || true  # $@
 
 control-up: $(LOG_DIR)
 	vagrant up control  # $@
