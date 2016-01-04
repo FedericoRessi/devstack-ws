@@ -63,7 +63,7 @@ sudo easy_install -U pip || install_package python-pip
 
 # use vagrant cachier with pip-accel
 PIP_ACCEL_DIR=/tmp/vagrant-cache/pip-accel
-sudo mkdir -f $PIP_ACCEL_DIR/root $PIP_ACCEL_DIR/vagrant
+sudo mkdir -p $PIP_ACCEL_DIR/root $PIP_ACCEL_DIR/vagrant
 sudo ln -sfn $PIP_ACCEL_DIR/root /var/cache/pip-accel
 sudo ln -sfn $PIP_ACCEL_DIR/vagrant ~/.pip-accel
 sudo pip install -U pip pip-accel 
