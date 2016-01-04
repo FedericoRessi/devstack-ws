@@ -37,10 +37,10 @@ box-update: $(LOG_DIR)
 	vagrant box update || true  # $@
 
 control-up: $(LOG_DIR)
-	vagrant up control  # $@
+	vagrant up --provider virtualbox control  # $@
 
 compute-up: $(LOG_DIR)
-	vagrant up compute  # $@
+	vagrant up --provider virtualbox compute  # $@
 
 control: $(LOG_DIR)
 	$(call VAGRANT_SSH,$@,cd /opt/stack/devstack && ./unstack.sh) || true  # $@ unstack

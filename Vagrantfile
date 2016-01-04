@@ -12,10 +12,10 @@ vm_boxes = {
     "trusty"   => "ubuntu/trusty64",
     "vivid"    => "ubuntu/vivid64",
     "wily"     => "ubuntu/wily64",
+    "centos7"  => "centos/7",
     "fedora21" => "box-cutter/fedora21",
     "fedora22" => "box-cutter/fedora22",
-    "fedora23" => "box-cutter/fedora23",
-    "centos7"  => "puppetlabs/centos-7.0-64-nocm"}
+    "fedora23" => "box-cutter/fedora23"}
 
 vm_box_name = ENV["VAGRANT_BOX_NAME"]
 if vm_box_name == nil
