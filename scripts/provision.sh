@@ -60,16 +60,15 @@ fi
 
 # Upgrade PIP and other Python packages
 sudo easy_install -U pip || install_package python-pip
-if [ -d /tmp/vagrant-cache ]; then
-    # use vagrant cachier with pip-accel
-    PIP_ACCEL_DIR=/tmp/vagrant-cache/pip-accel
-    sudo ln -sfn $PIP_ACCEL_DIR/root /var/cache/pip-accel
-    sudo ln -sfn $PIP_ACCEL_DIR/vagrant ~/.pip-accel
-    sudo chown -fR vagrant.vagrant $PIP_ACCEL_DIR
-    sudo pip install -U pip pip-accel 
-    sudo ln -sfn pip-accel /usr/local/bin/pip2.7
-fi
-sudo pip install -U tox certifi pyopenssl ndg-httpsclient pyasn1
+
+# use vagrant cachier with pip-accel
+PIP_ACCEL_DIR=/tmp/vagrant-cache/pip-accel
+sudo mkdir -f $PIP_ACCEL_DIR/root $PIP_ACCEL_DIR/vagrant
+sudo ln -sfn $PIP_ACCEL_DIR/root /var/cache/pip-accel
+sudo ln -sfn $PIP_ACCEL_DIR/vagrant ~/.pip-accel
+sudo pip install -U pip pip-accel 
+sudo ln -sfn pip-accel /usr/local/bin/pip2.7
+sudo pip-accel install -U tox certifi pyopenssl ndg-httpsclient pyasn1
 
 sudo chown -fR vagrant.vagrant /home/vagrant
 
