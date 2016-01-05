@@ -1,9 +1,13 @@
 [submodule "networking-odl"]
 	path = networking-odl
-	url = git@github.com:/FedericoRessi/networking-odl
+	url = https://github.com/FedericoRessi/networking-odl
+        branch = integration/master
 [submodule "devstack"]
 	path = devstack
-	url = https://git.openstack.org/devstack-dev/devstack
+	url = https://github.com/FedericoRessi/devstack
+        branch = integration/master
 [submodule "horizon"]
 	path = horizon
-	url = https://git.openstack.org/devstack/horizon
+	url = https://github.com/FedericoRessi/horizon
+        branch = integration/master
+

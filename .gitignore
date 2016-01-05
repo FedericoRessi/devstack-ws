@@ -8,5 +8,4 @@ glance/
 networking-ovs-dpdk/
 tempest/
 logs/
-
 python-novaclient/
