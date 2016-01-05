@@ -1,7 +1,5 @@
 .vagrant/
-devstack/
 requirements/
-horizon/
 keystone/
 neutron/
 nova/
