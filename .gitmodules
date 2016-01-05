@@ -1,0 +1,9 @@
+[submodule "networking-odl"]
+	path = networking-odl
+	url = git@github.com:/FedericoRessi/networking-odl
+[submodule "devstack"]
+	path = devstack
+	url = https://git.openstack.org/devstack-dev/devstack
+[submodule "horizon"]
+	path = horizon
+	url = https://git.openstack.org/devstack/horizon
