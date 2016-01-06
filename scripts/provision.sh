@@ -85,6 +85,9 @@ if [ ! -d $./logs ]; then
 	ln -sfn $LOGS_DIR ./logs
 fi
 
+# This is required by submodules
+rsync -ua /vagrant/.git .
+
 GIT_REPOS=$(ls -d /vagrant/*/.git 2> /dev/null || true)
 GIT_REPOS=$(dirname $GIT_REPOS 2> /dev/null || true) 
 if [[ $GIT_REPOS != "" ]]; then
