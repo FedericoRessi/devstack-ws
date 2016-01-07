@@ -24,7 +24,7 @@ if [ -d "$CONF_DIR" ]; then
     fi
 fi
 
-source "/vagrant/scripts/distrib_properties.sh"
+set +x; source "/vagrant/scripts/distrib_properties.sh"; set -x
 
 # Add local IP addresses to /etc/hosts
 HOST_IPS=$(ip addr | awk '/inet /{split($2, a, "/"); print a[1]}')
@@ -39,7 +39,7 @@ if is_ubuntu; then
     echo | sudo add-apt-repository cloud-archive:liberty || true
     sudo apt-get update -y
     sudo apt-get upgrade -y --force-yes
-    install_package git ebtables bridge-utils dkms module-assistant\
+    install_package --force-yes git ebtables bridge-utils dkms module-assistant\
         build-essential curl socat fdutils linux-generic-lts-vivid\
         libffi-dev libssl-dev libxml2-dev libxslt1-dev\
         python2.7 python2.7-dev python3 python3-dev python-setuptools\
