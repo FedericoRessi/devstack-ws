@@ -42,6 +42,10 @@ http_proxy = ENV["http_proxy"]
 https_proxy = ENV["https_proxy"]
 no_proxy = ENV["no_proxy"]
 
+log_dir = ENV["LOG_DIR"]
+if log_dir == nil
+    log_dir = "#{Dir.pwd}/logs"
+end
 # --- vagrant meat ------------------------------------------------------------
 
 Vagrant.configure(2) do |config|
@@ -70,8 +74,10 @@ Vagrant.configure(2) do |config|
                     id: "vnc-console", auto_correct: true
                 conf.vm.network :forwarded_port, guest: 80, host: 8000,
                     id: "openstack", auto_correct: true
-
             end
+
+            config.vm.synced_folder "#{log_dir}/#{vm_name}", "/opt/stack/logs",
+                create: true
            
             conf.vm.provider "virtualbox" do |vb|
                 # Display the VirtualBox GUI when booting the machine

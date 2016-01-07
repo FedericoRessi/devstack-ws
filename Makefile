@@ -1,71 +1,92 @@
 # Global variables ------------------------------------------------------------
 
-LOG_DIR := $(abspath logs)
+BUILD_NUMBER ?= 0
+BUILD_DIR ?= $(abspath build/$(BUILD_NUMBER))
+export LOG_DIR := $(BUILD_DIR)/logs
 
-# rule dependencies -----------------------------------------------------------
+# bash wrapper that redirects stout and sterr to log files
+SHELL := scripts/shell
+
 
 all: tox stack
 
-tox: devstack-tox networking-odl-tox
+# -----------------------------------------------------------------------------
 
-stack: control compute
+tox: tox-devstack tox-networking-odl
 
-clean: destroy
-
-devstack: devstack-tox control
-
-networking-odl: networking-odl-tox control
-
-control: control-up
-
-compute: compute-up
-
-control-up compute-up: box-update
-
-.PHONY: clean destroy compute compute-up control control-up box-update\
-    networking-odl networking-odl-tox devstack devstack-tox
-
-# rules details ---------------------------------------------------------------
-
-devstack-tox: $(LOG_DIR)
+tox-devstack: $(BUILD_DIR)
 	cd devstack && tox -v  # $@
-	
-networking-odl-tox: $(LOG_DIR)
+
+tox-networking-odl: $(BUILD_DIR)
 	cd networking-odl && tox -v  # $@
 
-box-update: $(LOG_DIR)
-	vagrant box update || true  # $@
+$(BUILD_DIR):
+	mkdir -p $(LOG_DIR);\
+	ln -sfn $(LOG_DIR) ./logs
 
-control-up: $(LOG_DIR)
-	vagrant up control  # $@
+# -----------------------------------------------------------------------------
 
-compute-up: $(LOG_DIR)
-	vagrant up compute  # $@
+stack: stack-control stack-compute
 
-control: $(LOG_DIR)
-	$(call VAGRANT_SSH,$@,cd /opt/stack/devstack && ./unstack.sh) || true  # $@ unstack
-	vagrant reload $@  # $@ reboot
-	$(call VAGRANT_SSH,$@,cd /opt/stack/devstack && ./stack.sh)  # $@ stack
+stack-control: boot-control
+	vagrant ssh control -c 'cd /opt/stack/devstack && ./stack.sh'  # $@
 
-compute: $(LOG_DIR)
-	$(call VAGRANT_SSH,$@,cd /opt/stack/devstack && ./unstack.sh) || true  # $@ unstack
-	vagrant reload $@  # $@ reboot
-	-$(call VAGRANT_SSH,$@,wget control:5000)  # $@ check-connectivity
-	$(call VAGRANT_SSH,$@,cd /opt/stack/devstack && ./stack.sh)  # $@ stack
+stack-compute: boot-compute
+	-vagrant ssh compute -c 'wget control:5000'  # $@ check-connectivity
+	vagrant ssh compute -c 'cd /opt/stack/devstack && ./stack.sh'  # $@
 
-clean:
-	rm -fR .vagrant .tox
+boot-control: $(BUILD_DIR)
+	vagrant up control --no-provision &&\
+	vagrant provision control && (\
+	vagrant ssh control -c '\
+		cd /opt/stack/devstack &&\
+		./unstack.sh;\
+		rm -fr /opt/stack/logs/*';\
+	vagrant reload control)  # $@
 
-destroy:
-	vagrant destroy -f
-	rm -fR $(LOG_DIR)
+boot-compute: $(BUILD_DIR)
+	vagrant up compute --provision &&\
+	vagrant provision compute && (\
+	vagrant ssh compute -c '\
+		cd /opt/stack/devstack &&\
+		./unstack.sh;\
+		rm -fr /opt/stack/logs/*';\
+	vagrant reload compute)  # $@
 
-$(LOG_DIR):
-	mkdir -p "$@"
+# -----------------------------------------------------------------------------
 
-# Functions -------------------------------------------------------------------
+clean: clean-cache destroy
+	rm -fR $(BUILD_DIR) $(LOG_DIR)  # $@
 
-SHELL := scripts/shell
+clean-cache:
+	rm -fR .vagrant */.tox  # $@
 
-VAGRANT_SSH = vagrant ssh "$1" -c '$2'
+destroy: destroy-control destroy-compute
 
+destroy-control:
+	rm -fR $(BUILD_DIR)/logs/control;\
+	vagrant destroy -f control;  # $@
+
+destroy-compute:
+	rm -fR $(BUILD_DIR)/logs/compute;\
+	vagrant destroy -f compute;  # $@
+
+# -----------------------------------------------------------------------------
+
+jenkins: update-box update-submodules
+	$(MAKE) all  # $@
+
+update-box: $(BUILD_DIR)
+	vagrant box outdated 2>&1 | grep 'vagrant box update' && (\
+	vagrant box update;\
+	$(MAKE) destroy) || true # $@
+
+update-submodules: $(BUILD_DIR)
+	git submodule sync &&\
+	git submodule update --init --remote --recursive &&\
+	git submodule foreach '\
+		git checkout master &&\
+		git pull &&\
+		git checkout integration/master &&\
+		git pull &&\
+		git rebase master'  # $@
