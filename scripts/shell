@@ -82,9 +82,8 @@ def main(command):
     def log_error(msg):
         error_logger.info(ansi_escape.sub('', msg[:-1]))
 
-    logger.info('Run: %s', command)
     try:
-        result = bash('-c', command, _out=log_output, _err=log_error)
+        result = bash('-x', '-c', command, _out=log_output, _err=log_error)
     except sh.ErrorReturnCode as error:
         LOG.error(
             'Error executing command:\n'
@@ -92,7 +91,7 @@ def main(command):
             '    Exit code: %s\n'
             '    Log file: %s\n'
             '%s',
-            command, error.exit_code, log_path, tail(log_path))
+            command, error.exit_code, log_path, tail('-n', '25', log_path))
 
         return error.exit_code
 

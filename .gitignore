@@ -1,3 +1,4 @@
+build/
 .vagrant/
 requirements/
 keystone/
@@ -7,5 +8,5 @@ cinder/
 glance/
 networking-ovs-dpdk/
 tempest/
-logs/
+logs
 python-novaclient/

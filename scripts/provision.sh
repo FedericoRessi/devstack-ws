@@ -79,11 +79,10 @@ if ! cd "/opt/stack" 2> /dev/null; then
     cd "/opt/stack"
 fi
 
-LOGS_DIR=/vagrant/logs/$(hostname)
-if [ ! -d $./logs ]; then
-	mkdir -p $LOGS_DIR
-	ln -sfn $LOGS_DIR ./logs
-fi
+# LOGS_DIR=/vagrant/logs/$(hostname)
+# if [ ! -d $./logs ]; then
+# 	ln -sfn $LOGS_DIR ./logs
+#fi
 
 # This is required by submodules
 rsync -ua /vagrant/.git .
