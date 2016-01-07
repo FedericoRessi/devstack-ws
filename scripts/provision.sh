@@ -75,17 +75,13 @@ sudo chown -fR vagrant.vagrant /home/vagrant
 # Populate /opt/stack ---------------------------------------------------------
 if ! cd "/opt/stack" 2> /dev/null; then
     sudo mkdir -p "/opt/stack"
-    sudo chown "vagrant.vagrant" "/opt/stack"
     cd "/opt/stack"
 fi
 
-# LOGS_DIR=/vagrant/logs/$(hostname)
-# if [ ! -d $./logs ]; then
-# 	ln -sfn $LOGS_DIR ./logs
-#fi
+sudo chown "vagrant.vagrant" "."
 
 # This is required by submodules
-rsync -ua /vagrant/.git .
+sudo rsync -ua /vagrant/.git .
 
 GIT_REPOS=$(ls -d /vagrant/*/.git 2> /dev/null || true)
 GIT_REPOS=$(dirname $GIT_REPOS 2> /dev/null || true) 
