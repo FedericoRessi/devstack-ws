@@ -1,8 +1,8 @@
 [submodule "networking-odl"]
 	path = networking-odl
-	url = ssh://git@github.com/FedericoRessi/networking-odl
+	url = https://github.com/FedericoRessi/networking-odl
 	branch = integration/master
 [submodule "devstack"]
 	path = devstack
-	url = ssh://git@github.com/FedericoRessi/devstack
+	url = https://github.com/FedericoRessi/devstack
 	branch = integration/master
