@@ -74,7 +74,7 @@ destroy-compute:
 # -----------------------------------------------------------------------------
 
 jenkins: update-box update-submodules
-	$(MAKE) all  # $@
+	$(MAKE) tox stack-control  # $@
 
 update-box: $(BUILD_DIR)
 	vagrant box outdated 2>&1 | grep 'vagrant box update' && (\
