@@ -68,7 +68,7 @@ def main(command):
         logger.warning('Install: sh')
         import pip
         pip.main(['install', '--user', 'sh'])
-    
+
     from sh import bash, tail
     logging.getLogger('sh').setLevel(logging.WARNING)
     
