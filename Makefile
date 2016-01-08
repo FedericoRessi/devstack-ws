@@ -91,14 +91,16 @@ update-submodules: $(BUILD_DIR)
 	$(GIT) submodule sync &&\
 	$(GIT) submodule update --init --remote --recursive &&\
 	$(GIT) submodule foreach '\
-		$(GIT) review -s &&\
-		$(GIT) rebase $(GERRIT_BASE) &&\
-		$(GIT) tag -af INTEGRATION_BASE -m "Base revision for integration."\
+		set -ex;\
+		$(GIT) review -vs;\
+		$(GIT) rebase $(GERRIT_BASE);\
+		$(GIT) tag -af INTEGRATION_BASE -m "Base revision for integration.";\
 	'  # $@
 
 checkout-patchset: update-submodules
-	if [ -n "$(GERRIT_PROJECT)" ] ; then\
-	    cd "$(GERRIT_PROJECT)" &&\
-		$(GIT) review -v -d $(GERRIT_CHANGE_NUMBER)/$(GERRIT_PATCHSET_NUMBER) &&\
+	if [ -n "$(GERRIT_PROJECT)" ]; then\
+		set -ex;\
+	    cd "$(GERRIT_PROJECT)";\
+		$(GIT) review -vd $(GERRIT_CHANGE_NUMBER)/$(GERRIT_PATCHSET_NUMBER);\
 		$(GIT) rebase INTEGRATION_BASE;\
 	fi # $@
