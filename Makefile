@@ -7,8 +7,12 @@ export LOG_DIR := $(BUILD_DIR)/logs
 # bash wrapper that redirects stout and sterr to log files
 SHELL := scripts/shell
 
+GIT := git
+
+GERRIT_PROJECT ?= ""
 
 all: tox stack
+
 
 # -----------------------------------------------------------------------------
 
@@ -73,7 +77,7 @@ destroy-compute:
 
 # -----------------------------------------------------------------------------
 
-jenkins: update-box update-submodules
+jenkins: update-box checkout-patchset
 	$(MAKE) tox stack-control  # $@
 
 update-box: $(BUILD_DIR)
@@ -82,11 +86,13 @@ update-box: $(BUILD_DIR)
 	$(MAKE) destroy) || true # $@
 
 update-submodules: $(BUILD_DIR)
-	git submodule sync &&\
-	git submodule update --init --remote --recursive &&\
-	git submodule foreach '\
-		git checkout master &&\
-		git pull &&\
-		git checkout integration/master &&\
-		git pull &&\
-		git rebase master'  # $@
+	$(GIT) submodule sync &&\
+	$(GIT) submodule update --init --remote --recursive  # $@
+
+checkout-patchset: update-submodules
+	if [ -n "$(GERRIT_PROJECT)" ] ; then\
+	    cd "$(GERRIT_PROJECT)" &&\
+		$(GIT) tag -af INTEGRATION_BASE -m 'Base revision for integration.' &&\
+		$(GIT) review -d $(GERRIT_CHANGE_NUMBER)/$(GERRIT_PATCHSET_NUMBER) &&\
+		$(GIT) rebase INTEGRATION_BASE;\
+	fi # $@
