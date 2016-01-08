@@ -17,8 +17,10 @@ format_log_path = path.join(
 TIMESTAMP_FORMAT = '%y%m%d-%H%M%S'
 LOG_FORMAT = '%(asctime)-15s | %(message)s'
 
+
 def timestamp():
     return datetime.datetime.now().strftime(TIMESTAMP_FORMAT)
+
 
 def setup_lonnging(command, level=logging.WARNING):
     logging._acquireLock()
@@ -33,15 +35,15 @@ def setup_lonnging(command, level=logging.WARNING):
             stream_handler.setLevel(level)
             stream_handler.setFormatter(formatter)
             root.addHandler(stream_handler)
-            
+
             description = command.split('#', 1)[-1].strip()
-            
+
             log_path = format_log_path(
                 timestamp=timestamp(), description=description.strip())
             while path.isfile(log_path):
                 time.sleep(.1)
                 log_path = format_log_path(timestamp=timestamp())
-    
+
             if path.isdir(path.dirname(log_path)):
                 file_handler = logging.FileHandler(log_path, 'wt')
                 file_handler.setLevel(logging.INFO)
@@ -51,7 +53,7 @@ def setup_lonnging(command, level=logging.WARNING):
                 log_path = None
 
             return log_path
-            
+
     finally:
         logging._releaseLock()
 
@@ -71,7 +73,7 @@ def main(command):
 
     from sh import bash, tail
     logging.getLogger('sh').setLevel(logging.WARNING)
-    
+
     ansi_escape = re.compile(r'\x1b[^m]*m')
 
     output_logger = logging.getLogger('out')
