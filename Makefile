@@ -37,29 +37,38 @@ $(BUILD_DIR):
 stack: stack-control stack-compute
 
 stack-control: boot-control
-	vagrant ssh control -c 'cd /opt/stack/devstack && ./stack.sh'  # $@
+	vagrant ssh control -c '\
+		set -xe;
+		cd /opt/stack/devstack;\
+		rm -fr /opt/stack/logs/*;\
+		./stack.sh'  # $@
 
 stack-compute: boot-compute
-	-vagrant ssh compute -c 'wget control:5000'  # $@ check-connectivity
-	vagrant ssh compute -c 'cd /opt/stack/devstack && ./stack.sh'  # $@
+	vagrant ssh compute -c '\
+		set -xe;
+		cd /opt/stack/devstack;\
+		rm -fr /opt/stack/logs/*;\
+		./stack.sh'  # $@
 
 boot-control: $(BUILD_DIR)
-	vagrant up control --no-provision &&\
-	vagrant provision control && (\
+	set -xe;\
+	vagrant up control --no-provision;\
+	vagrant provision control;\
 	vagrant ssh control -c '\
-		cd /opt/stack/devstack &&\
+		cd /opt/stack/devstack;\
 		./unstack.sh;\
-		rm -fr /opt/stack/logs/*';\
-	vagrant reload control)  # $@
+		true';\
+	vagrant reload control  # $@
 
 boot-compute: $(BUILD_DIR)
-	vagrant up compute --provision &&\
-	vagrant provision compute && (\
+	set -xe;\
+	vagrant up compute --no-provision;\
+	vagrant provision compute;\
 	vagrant ssh compute -c '\
-		cd /opt/stack/devstack &&\
+		cd /opt/stack/devstack;\
 		./unstack.sh;\
-		rm -fr /opt/stack/logs/*';\
-	vagrant reload compute)  # $@
+		true';\
+	vagrant reload compute  # $@
 
 # -----------------------------------------------------------------------------
 
@@ -73,16 +82,17 @@ destroy: destroy-control destroy-compute
 
 destroy-control:
 	rm -fR $(BUILD_DIR)/logs/control;\
-	vagrant destroy -f control;  # $@
+	vagrant destroy -f control  # $@
 
 destroy-compute:
 	rm -fR $(BUILD_DIR)/logs/compute;\
-	vagrant destroy -f compute;  # $@
+	vagrant destroy -f compute  # $@
 
 # -----------------------------------------------------------------------------
 
 jenkins: update-box update-submodules
-	$(MAKE) checkout-patchset  &&\
+	set -xe;\
+	$(MAKE) checkout-patchset;\
 	$(MAKE) tox stack-control  # $@
 
 update-box: $(BUILD_DIR)
@@ -93,20 +103,20 @@ update-box: $(BUILD_DIR)
 	true # $@
 
 update-submodules: $(BUILD_DIR)
-	$(GIT) submodule sync &&\
-	$(GIT) submodule update --init --remote --recursive &&\
+	set -xe;\
+	$(GIT) submodule sync;\
+	$(GIT) submodule update --init --remote --recursive;\
 	$(GIT) submodule foreach '\
 		set -ex;\
 		if $(GIT) remote | grep gerrit > /dev/null; then\
 			$(GIT) remote remove gerrit;\
 		fi;\
 		$(GIT) remote add gerrit $(GERRIT_URL);\
-		$(GIT) rebase $(GERRIT_BASE);\
-	'  # $@
+		$(GIT) rebase $(GERRIT_BASE)'  # $@
 
 checkout-patchset:
+	set -ex;\
 	if [ -n "$(GERRIT_PROJECT)" ]; then\
-		set -ex;\
 		cd "$(GERRIT_PROJECT)";\
 		INTEGRATION_BASE=`git rev-parse HEAD`;\
 		$(GIT) review -vd $(GERRIT_CHANGE_NUMBER)/$(GERRIT_PATCHSET_NUMBER);\
