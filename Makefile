@@ -102,7 +102,6 @@ update-submodules: $(BUILD_DIR)
 		fi;\
 		$(GIT) remote add gerrit $(GERRIT_URL);\
 		$(GIT) rebase $(GERRIT_BASE);\
-		$(GIT) tag -af INTEGRATION_BASE -m "Base revision for integration.";\
 	'  # $@
 
 checkout-patchset:
