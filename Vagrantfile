@@ -68,7 +68,7 @@ Vagrant.configure(2) do |config|
             # this avoid concurrency problems when running tests in parallel
             conf.vm.network :forwarded_port, guest: 22, host: 22000 + rand(9999),
                 id: "ssh", auto_correct: true
-            
+
             if vm_name == 'control'
                 conf.vm.network :forwarded_port, guest: 6080, host: 6080,
                     id: "vnc-console", auto_correct: true
@@ -78,7 +78,7 @@ Vagrant.configure(2) do |config|
 
             config.vm.synced_folder "#{log_dir}/#{vm_name}", "/opt/stack/logs",
                 create: true
-           
+
             conf.vm.provider "virtualbox" do |vb|
                 # Display the VirtualBox GUI when booting the machine
                 vb.gui = false
@@ -100,6 +100,12 @@ Vagrant.configure(2) do |config|
         if no_proxy != nil
             config.proxy.no_proxy = no_proxy
         end
+    end
+
+    if Vagrant.has_plugin?("vagrant-cachier")
+        config.cache.scope = :machine
+        config.cache.enable :apt
+        # config.cache.enable :yum
     end
 
     if git_proxy_wrapper != nil
