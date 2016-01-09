@@ -38,14 +38,14 @@ stack: stack-control stack-compute
 
 stack-control: boot-control
 	vagrant ssh control -c '\
-		set -xe;
+		set -xe;\
 		cd /opt/stack/devstack;\
 		rm -fr /opt/stack/logs/*;\
 		./stack.sh'  # $@
 
 stack-compute: boot-compute
 	vagrant ssh compute -c '\
-		set -xe;
+		set -xe;\
 		cd /opt/stack/devstack;\
 		rm -fr /opt/stack/logs/*;\
 		./stack.sh'  # $@
