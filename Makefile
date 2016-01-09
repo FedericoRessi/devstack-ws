@@ -13,8 +13,10 @@ GERRIT_PROJECT ?= ""
 
 all: tox stack
 
+GERRIT_HOST = `../scripts/valuefromini .gitreview gerrit host review.openstack.org`
+GERRIT_PORT = 443
+GERRIT_URL = "http://$(GERRIT_HOST):$(GERRIT_PORT)/`../scripts/valuefromini .gitreview gerrit project unknown-project`"
 GERRIT_BASE = `../scripts/valuefromini .gitreview gerrit defaultbranch master`
-
 
 # -----------------------------------------------------------------------------
 
@@ -92,7 +94,10 @@ update-submodules: $(BUILD_DIR)
 	$(GIT) submodule update --init --remote --recursive &&\
 	$(GIT) submodule foreach '\
 		set -ex;\
-		$(GIT) review -vs;\
+		if $(GIT) remote | grep gerrit > /dev/null; then\
+		    $(GIT) remote remove gerrit;\
+		fi;\
+		$(GIT) remote add gerrit $(GERRIT_URL);\
 		$(GIT) rebase $(GERRIT_BASE);\
 		$(GIT) tag -af INTEGRATION_BASE -m "Base revision for integration.";\
 	'  # $@
