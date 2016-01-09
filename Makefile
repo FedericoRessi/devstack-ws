@@ -15,7 +15,7 @@ all: tox stack
 
 GERRIT_HOST = `../scripts/valuefromini .gitreview gerrit host review.openstack.org`
 GERRIT_PORT = 443
-GERRIT_URL = "http://$(GERRIT_HOST):$(GERRIT_PORT)/`../scripts/valuefromini .gitreview gerrit project unknown-project`"
+GERRIT_URL = "https://$(GERRIT_HOST):$(GERRIT_PORT)/`../scripts/valuefromini .gitreview gerrit project unknown-project`"
 GERRIT_BASE = `../scripts/valuefromini .gitreview gerrit defaultbranch master`
 
 # -----------------------------------------------------------------------------
@@ -112,7 +112,8 @@ update-submodules: $(BUILD_DIR)
 			$(GIT) remote remove gerrit;\
 		fi;\
 		$(GIT) remote add gerrit $(GERRIT_URL);\
-		$(GIT) rebase $(GERRIT_BASE)'  # $@
+		$(GIT) fetch gerrit;\
+		$(GIT) rebase gerrit/$(GERRIT_BASE)'  # $@
 
 checkout-patchset:
 	set -ex;\
