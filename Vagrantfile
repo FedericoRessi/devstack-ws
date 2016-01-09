@@ -104,8 +104,6 @@ Vagrant.configure(2) do |config|
 
     if Vagrant.has_plugin?("vagrant-cachier")
         config.cache.scope = :machine
-        config.cache.enable :apt
-        # config.cache.enable :yum
     end
 
     if git_proxy_wrapper != nil
