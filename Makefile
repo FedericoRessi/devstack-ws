@@ -81,13 +81,16 @@ destroy-compute:
 
 # -----------------------------------------------------------------------------
 
-jenkins: update-box checkout-patchset
+jenkins: update-box update-submodules
+	$(MAKE) checkout-patchset  &&\
 	$(MAKE) tox stack-control  # $@
 
 update-box: $(BUILD_DIR)
-	vagrant box outdated 2>&1 | grep 'vagrant box update' && (\
-	vagrant box update;\
-	$(MAKE) destroy) || true # $@
+	if vagrant box outdated 2>&1 | grep 'vagrant box update'; then\
+		$(MAKE) destroy;\
+		vagrant box update;\
+	fi;\
+	true # $@
 
 update-submodules: $(BUILD_DIR)
 	$(GIT) submodule sync &&\
@@ -95,17 +98,18 @@ update-submodules: $(BUILD_DIR)
 	$(GIT) submodule foreach '\
 		set -ex;\
 		if $(GIT) remote | grep gerrit > /dev/null; then\
-		    $(GIT) remote remove gerrit;\
+			$(GIT) remote remove gerrit;\
 		fi;\
 		$(GIT) remote add gerrit $(GERRIT_URL);\
 		$(GIT) rebase $(GERRIT_BASE);\
 		$(GIT) tag -af INTEGRATION_BASE -m "Base revision for integration.";\
 	'  # $@
 
-checkout-patchset: update-submodules
+checkout-patchset:
 	if [ -n "$(GERRIT_PROJECT)" ]; then\
 		set -ex;\
-	    cd "$(GERRIT_PROJECT)";\
+		cd "$(GERRIT_PROJECT)";\
+		INTEGRATION_BASE=`git rev-parse HEAD`;\
 		$(GIT) review -vd $(GERRIT_CHANGE_NUMBER)/$(GERRIT_PATCHSET_NUMBER);\
-		$(GIT) rebase INTEGRATION_BASE;\
+		$(GIT) rebase $$INTEGRATION_BASE;\
 	fi # $@
