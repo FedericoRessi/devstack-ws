@@ -90,7 +90,7 @@ destroy-compute:
 
 # -----------------------------------------------------------------------------
 
-jenkins: update-box update-submodules
+jenkins: update-box update-submodules destroy
 	set -xe;\
 	$(MAKE) checkout-patchset;\
 	$(MAKE) tox stack-control  # $@
