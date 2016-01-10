@@ -7,7 +7,7 @@ export LOG_DIR := $(BUILD_DIR)/logs
 # bash wrapper that redirects stout and sterr to log files
 SHELL := scripts/shell
 
-GIT := git
+GIT := git --no-pager
 
 SUBMODULE = $$(basename $$(pwd))
 INTEGRATION_BRANCH = `../scripts/valuefromini ../.gitmodules "submodule \"$(SUBMODULE)\"" branch`
@@ -131,5 +131,8 @@ checkout-patchset:
 		$(GIT) review -vd $(GERRIT_CHANGE_NUMBER)/$(GERRIT_PATCHSET_NUMBER);\
 		$(GIT) rebase integration/base;\
 	fi;\
-	$(GIT) submodule foreach 'git log -n 5';\
-	# $@
+	$(GIT) submodule foreach '\
+		echo;\
+		$(GIT) log --graph -n 5;\
+		echo;\
+		echo'  # $@

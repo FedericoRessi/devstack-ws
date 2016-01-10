@@ -1,0 +1,90 @@
+Entering 'devstack'
+commit 126fdcd727fb429adfd86930728b419c346b1f66
+Author: Federico Ressi <federico.ressi@intel.com>
+Date:   Sun Jan 3 20:20:12 2016 +0000
+
+    Don't die when yum fails.
+    
+    Not all yum failures has to be considered
+    catastrofic failures also because install_package
+    function should implement the same behavior in Fedora,
+    CentOS and Ubuntu. Let return the error to be solved at higher
+    level.
+    
+    Change-Id: Ia33bb98f47017f6ec00eb3b7261ed42d72efc573
+    Closes-Bug: #1522590
+
+commit 8df31a107d9d55233aef290733c56e2f953e5dd3
+Merge: a3ab686 59c6377
+Author: Jenkins <jenkins@review.openstack.org>
+Date:   Sat Jan 9 07:49:34 2016 +0000
+
+    Merge "Assign admin role for admin user on default domain"
+
+commit a3ab6865ff870b81f95a0e77da8881cb8a407a06
+Merge: 698c62c ecc1f41
+Author: Jenkins <jenkins@review.openstack.org>
+Date:   Sat Jan 9 06:51:04 2016 +0000
+
+    Merge "Don't reinstall package just after installing."
+
+commit 698c62c430032d323350a9c85cd181ca61fdb4c3
+Merge: 6f002b1 a263e7d
+Author: Jenkins <jenkins@review.openstack.org>
+Date:   Fri Jan 8 18:07:09 2016 +0000
+
+    Merge "lib/cinder:configure tgt even if the package was purged"
+
+commit 6f002b169c7b5f418b9b21157f654d05a4480c88
+Merge: 828936c 43f62c0
+Author: Jenkins <jenkins@review.openstack.org>
+Date:   Fri Jan 8 15:56:05 2016 +0000
+
+    Merge "Move horizon config and start to appropriate phase in stack.sh"
+Entering 'networking-odl'
+commit 544d29eec70dcd01eea4e6a0f76b8c3776f7e80f
+Author: Federico Ressi <federico.ressi@intel.com>
+Date:   Sun Jan 10 12:44:58 2016 +0000
+
+    Revert "Enable vhost-user ports on supported platforms."
+    
+    This reverts commit 90e1fdf7fa71a6d3c7243968b5e6d217b9db56f7.
+
+commit f5275d0d241a4071bea28c2001acae7646dccba2
+Author: Federico Ressi <federico.ressi@intel.com>
+Date:   Wed Dec 23 08:02:39 2015 +0100
+
+    Add testing support for OSX.
+    
+    Change-Id: I043f3e445ffd32199098c6ecb03ee12ac4ef67d0
+
+commit 90e1fdf7fa71a6d3c7243968b5e6d217b9db56f7
+Author: Federico Ressi <federico.ressi@intel.com>
+Date:   Mon Aug 10 15:05:12 2015 +0100
+
+    Enable vhost-user ports on supported platforms.
+    
+    Over the past six months ovs and odl have been extended to report
+    the supported port types available on the virtual switch.
+    This change extends the bind_port implementation to consult the supported
+    port types of the virtual switch on the selected compute host when selecting
+    the VIF_TYPE to bind.
+    
+    Change-Id: Ib97c2d2e1e2e1cd536bc27ac54a8f27a5963e883
+    Closes-Bug: #1477611
+
+commit 81b2838c0df8f6fb69055fb22623deffec455b49
+Author: Federico Ressi <federico.ressi@intel.com>
+Date:   Fri Dec 25 13:41:23 2015 +0100
+
+    Allow skipping installation of Open vSwitch.
+    
+    Change-Id: I6c1fefd5c918be93fb533aa3ecd173fc23eb7edf
+    Closes-Bug: #1529238
+
+commit 77a9f43fbdcdfd88a1d264dbd9c2fba48dfef681
+Merge: fd8d170 9d34b48
+Author: Jenkins <jenkins@review.openstack.org>
+Date:   Tue Jan 5 17:42:19 2016 +0000
+
+    Merge "Fix the typo in message correctly."
