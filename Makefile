@@ -135,4 +135,5 @@ checkout-patchset:
 		echo;\
 		$(GIT) log --graph -n 5;\
 		echo;\
-		echo'  # $@
+		echo';\
+	sleep 1  # $@
