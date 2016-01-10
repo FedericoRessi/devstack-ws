@@ -104,6 +104,7 @@ update-box: $(BUILD_DIR)
 
 update-submodules: $(BUILD_DIR)
 	set -xe;\
+	$(GIT) submodule deinit -f .;\
 	$(GIT) submodule sync;\
 	$(GIT) submodule update --init --remote --recursive;\
 	$(GIT) submodule foreach '\
