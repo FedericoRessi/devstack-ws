@@ -9,14 +9,17 @@ SHELL := scripts/shell
 
 GIT := git
 
-GERRIT_PROJECT ?= ""
-
-all: tox stack
+SUBMODULE = $$(basename $$(pwd))
+INTEGRATION_BRANCH = `../scripts/valuefromini ../.gitmodules "submodule \"$(SUBMODULE)\"" branch`
 
 GERRIT_HOST = `../scripts/valuefromini .gitreview gerrit host review.openstack.org`
 GERRIT_PORT = 443
 GERRIT_URL = "https://$(GERRIT_HOST):$(GERRIT_PORT)/`../scripts/valuefromini .gitreview gerrit project unknown-project`"
 GERRIT_BASE = `../scripts/valuefromini .gitreview gerrit defaultbranch master`
+GERRIT_PROJECT ?= ""
+
+all: tox stack
+
 
 # -----------------------------------------------------------------------------
 
@@ -109,12 +112,14 @@ update-submodules: $(BUILD_DIR)
 	$(GIT) submodule update --init --remote --recursive;\
 	$(GIT) submodule foreach '\
 		set -ex;\
-		$(GIT) rebase --abort || true;\
+		INTEGRATION_BRANCH=$(INTEGRATION_BRANCH);\
+		$(GIT) fetch origin $$INTEGRATION_BRANCH;\
+		$(GIT) checkout -f FETCH_HEAD;\
+		$(GIT) checkout -B integration/base;\
 		if $(GIT) remote | grep gerrit > /dev/null; then\
 			$(GIT) remote remove gerrit;\
 		fi;\
-		$(GIT) remote add gerrit $(GERRIT_URL);\
-		$(GIT) fetch gerrit;\
+		$(GIT) remote add -f gerrit $(GERRIT_URL);\
 		$(GIT) rebase gerrit/$(GERRIT_BASE)'  # $@
 
 checkout-patchset:
@@ -122,7 +127,6 @@ checkout-patchset:
 	if [ -n "$(GERRIT_PROJECT)" ]; then\
 		cd "$(GERRIT_PROJECT)";\
 		$(GIT) rebase --abort || true;\
-		INTEGRATION_BASE=`git rev-parse HEAD`;\
 		$(GIT) review -vd $(GERRIT_CHANGE_NUMBER)/$(GERRIT_PATCHSET_NUMBER);\
-		$(GIT) rebase $$INTEGRATION_BASE;\
+		$(GIT) rebase integration/base;\
 	fi # $@
