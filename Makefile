@@ -108,6 +108,7 @@ update-submodules: $(BUILD_DIR)
 	$(GIT) submodule update --init --remote --recursive;\
 	$(GIT) submodule foreach '\
 		set -ex;\
+		$(GIT) rebase --abort || true;\
 		if $(GIT) remote | grep gerrit > /dev/null; then\
 			$(GIT) remote remove gerrit;\
 		fi;\
@@ -120,6 +121,7 @@ checkout-patchset:
 	if [ -n "$(GERRIT_PROJECT)" ]; then\
 		cd "$(GERRIT_PROJECT)";\
 		INTEGRATION_BASE=`git rev-parse HEAD`;\
+		$(GIT) rebase --abort || true;\
 		$(GIT) review -vd $(GERRIT_CHANGE_NUMBER)/$(GERRIT_PATCHSET_NUMBER);\
 		$(GIT) rebase $$INTEGRATION_BASE;\
 	fi # $@
