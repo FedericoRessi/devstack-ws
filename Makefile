@@ -130,4 +130,6 @@ checkout-patchset:
 		$(GIT) rebase --abort || true;\
 		$(GIT) review -vd $(GERRIT_CHANGE_NUMBER)/$(GERRIT_PATCHSET_NUMBER);\
 		$(GIT) rebase integration/base;\
-	fi # $@
+	fi;\
+	scripts/git-all log -n 5;\
+	# $@
