@@ -93,7 +93,7 @@ def main(command):
             '    Exit code: %s\n'
             '    Log file: %s\n'
             '%s',
-            command, error.exit_code, log_path, tail('-n', '25', log_path))
+            command, error.exit_code, log_path, tail('-n', '100', log_path))
 
         return error.exit_code
 
