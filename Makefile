@@ -121,8 +121,8 @@ checkout-patchset:
 	set -ex;\
 	if [ -n "$(GERRIT_PROJECT)" ]; then\
 		cd "$(GERRIT_PROJECT)";\
-		INTEGRATION_BASE=`git rev-parse HEAD`;\
 		$(GIT) rebase --abort || true;\
+		INTEGRATION_BASE=`git rev-parse HEAD`;\
 		$(GIT) review -vd $(GERRIT_CHANGE_NUMBER)/$(GERRIT_PATCHSET_NUMBER);\
 		$(GIT) rebase $$INTEGRATION_BASE;\
 	fi # $@
