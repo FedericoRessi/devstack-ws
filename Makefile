@@ -113,6 +113,7 @@ update-submodules: $(BUILD_DIR)
 	$(GIT) submodule foreach '\
 		set -ex;\
 		INTEGRATION_BRANCH=$(INTEGRATION_BRANCH);\
+		$(GIT) rebase --abort || true;\
 		$(GIT) fetch origin $$INTEGRATION_BRANCH;\
 		$(GIT) checkout -f FETCH_HEAD;\
 		$(GIT) checkout -B integration/base;\
