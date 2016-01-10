@@ -131,5 +131,5 @@ checkout-patchset:
 		$(GIT) review -vd $(GERRIT_CHANGE_NUMBER)/$(GERRIT_PATCHSET_NUMBER);\
 		$(GIT) rebase integration/base;\
 	fi;\
-	scripts/git-all log -n 5;\
+	$(GIT) submodule foreach 'git log -n 5';\
 	# $@
