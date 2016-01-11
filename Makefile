@@ -17,7 +17,9 @@ MODULE_GERRIT_URL = "https://$(MODULE_GERRIT_HOST):$(MODULE_GERRIT_PORT)/`../scr
 MODULE_GERRIT_BASE = `../scripts/valuefromini .gitreview gerrit defaultbranch master`
 MODULE_GERRIT_PROJECT = `../scripts/valuefromini .gitreview gerrit project unknown-project`
 
-GERRIT_PROJECT ?= ""
+GERRIT_PATCHSET_REVISION ?= ""
+GERRIT_PROJECT ?= "unknown-gerrit-project"
+GERRIT_TOPIC ?= "unknown-gerrit-topic"
 
 all: tox stack
 
@@ -125,13 +127,14 @@ update-submodules: $(BUILD_DIR)
 
 checkout-patchset:
 	set -ex;\
-	if [ -n "$(GERRIT_PROJECT)" ]; then\
+	if [ -n "$(GERRIT_PATCHSET_REVISION)" ]; then\
 		$(GIT) submodule foreach '\
 			set -ex;\
 			MODULE_GERRIT_PROJECT="$(MODULE_GERRIT_PROJECT)";\
-			if [ "$$MODULE_GERRIT_PROJECT" == "$(GERRIT_PROJECT)" ]; then\
+			if [ "$${MODULE_GERRIT_PROJECT%.*}" == "$(GERRIT_PROJECT)" ]; then\
 				$(GIT) rebase --abort || true;\
-				$(GIT) review -vd $(GERRIT_CHANGE_NUMBER)/$(GERRIT_PATCHSET_NUMBER);\
+				$(GIT) rebase $(GERRIT_PATCHSET_REVISION);\
+				$(GIT) checkout -B $(GERRIT_TOPIC);\
 				$(GIT) rebase integration/base;\
 			fi';\
 	fi;\
