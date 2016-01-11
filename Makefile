@@ -133,7 +133,7 @@ checkout-patchset:
 			MODULE_GERRIT_PROJECT="$(MODULE_GERRIT_PROJECT)";\
 			if [ "$${MODULE_GERRIT_PROJECT%.*}" == "$(GERRIT_PROJECT)" ]; then\
 				$(GIT) rebase --abort || true;\
-				$(GIT) rebase $(GERRIT_PATCHSET_REVISION);\
+				$(GIT) checkout $(GERRIT_PATCHSET_REVISION);\
 				$(GIT) checkout -B $(GERRIT_TOPIC);\
 				$(GIT) rebase integration/base;\
 			fi';\
