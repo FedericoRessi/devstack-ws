@@ -114,7 +114,7 @@ update-submodules: $(BUILD_DIR)
 	$(GIT) submodule update --init --remote --recursive;\
 	$(GIT) submodule foreach '\
 		set -ex;\
-		INTEGRATION_BRANCH=$(MUDULE_INTEGRATION_BRANCH);\
+		INTEGRATION_BRANCH=$(MODULE_INTEGRATION_BRANCH);\
 		$(GIT) rebase --abort || true;\
 		$(GIT) cherry-pick --abort || true;\
 		$(GIT) fetch origin $$INTEGRATION_BRANCH;\
