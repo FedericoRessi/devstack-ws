@@ -10,12 +10,13 @@ SHELL := scripts/shell
 GIT := git --no-pager
 
 SUBMODULE = $$(basename $$(pwd))
-INTEGRATION_BRANCH = `../scripts/valuefromini ../.gitmodules "submodule \"$(SUBMODULE)\"" branch`
+MODULE_INTEGRATION_BRANCH = `../scripts/valuefromini ../.gitmodules "submodule \"$(SUBMODULE)\"" branch`
+MODULE_GERRIT_HOST = `../scripts/valuefromini .gitreview gerrit host review.openstack.org`
+MODULE_GERRIT_PORT = 443
+MODULE_GERRIT_URL = "https://$(MODULE_GERRIT_HOST):$(MODULE_GERRIT_PORT)/`../scripts/valuefromini .gitreview gerrit project unknown-project`"
+MODULE_GERRIT_BASE = `../scripts/valuefromini .gitreview gerrit defaultbranch master`
+MODULE_GERRIT_PROJECT = `../scripts/valuefromini .gitreview gerrit project unknown-project`
 
-GERRIT_HOST = `../scripts/valuefromini .gitreview gerrit host review.openstack.org`
-GERRIT_PORT = 443
-GERRIT_URL = "https://$(GERRIT_HOST):$(GERRIT_PORT)/`../scripts/valuefromini .gitreview gerrit project unknown-project`"
-GERRIT_BASE = `../scripts/valuefromini .gitreview gerrit defaultbranch master`
 GERRIT_PROJECT ?= ""
 
 all: tox stack
@@ -111,7 +112,7 @@ update-submodules: $(BUILD_DIR)
 	$(GIT) submodule update --init --remote --recursive;\
 	$(GIT) submodule foreach '\
 		set -ex;\
-		INTEGRATION_BRANCH=$(INTEGRATION_BRANCH);\
+		INTEGRATION_BRANCH=$(MUDULE_INTEGRATION_BRANCH);\
 		$(GIT) rebase --abort || true;\
 		$(GIT) fetch origin $$INTEGRATION_BRANCH;\
 		$(GIT) checkout -f FETCH_HEAD;\
@@ -119,20 +120,26 @@ update-submodules: $(BUILD_DIR)
 		if $(GIT) remote | grep gerrit > /dev/null; then\
 			$(GIT) remote remove gerrit;\
 		fi;\
-		$(GIT) remote add -f gerrit $(GERRIT_URL);\
-		$(GIT) rebase gerrit/$(GERRIT_BASE)'  # $@
+		$(GIT) remote add -f gerrit $(MODULE_GERRIT_URL);\
+		$(GIT) rebase gerrit/$(MODULE_GERRIT_BASE)'  # $@
 
 checkout-patchset:
 	set -ex;\
 	if [ -n "$(GERRIT_PROJECT)" ]; then\
-		cd "$(GERRIT_PROJECT)";\
-		$(GIT) rebase --abort || true;\
-		$(GIT) review -vd $(GERRIT_CHANGE_NUMBER)/$(GERRIT_PATCHSET_NUMBER);\
-		$(GIT) rebase integration/base;\
+		$(GIT) submodule foreach '\
+			set -ex;\
+			MODULE_GERRIT_PROJECT="$(MODULE_GERRIT_PROJECT)";\
+			if [ "$$MODULE_GERRIT_PROJECT" == "$(GERRIT_PROJECT)" ]; then\
+				$(GIT) rebase --abort || true;\
+				$(GIT) review -vd $(GERRIT_CHANGE_NUMBER)/$(GERRIT_PATCHSET_NUMBER);\
+				$(GIT) rebase integration/base;\
+			fi';\
 	fi;\
 	$(GIT) submodule foreach '\
+		MODULE_GERRIT_PROJECT="$(MODULE_GERRIT_PROJECT)";\
 		echo;\
+		echo;\
+		echo ["$$MODULE_GERRIT_PROJECT"];\
 		$(GIT) log --graph -n 5;\
 		echo;\
-		echo';\
-	sleep 1  # $@
+		echo';  # $@
