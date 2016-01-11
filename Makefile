@@ -17,9 +17,9 @@ MODULE_GERRIT_URL = "https://$(MODULE_GERRIT_HOST):$(MODULE_GERRIT_PORT)/`../scr
 MODULE_GERRIT_BASE = `../scripts/valuefromini .gitreview gerrit defaultbranch master`
 MODULE_GERRIT_PROJECT = `../scripts/valuefromini .gitreview gerrit project unknown-project`
 
-GERRIT_PATCHSET_REVISION ?= ""
-GERRIT_PROJECT ?= "unknown-gerrit-project"
-GERRIT_TOPIC ?= "unknown-gerrit-topic"
+GERRIT_PROJECT ?= ""
+GERRIT_CHANGE_NUMBER ?= ""
+GERRIT_PATCHSET_NUMBER ?= ""
 
 all: tox stack
 
@@ -98,7 +98,7 @@ destroy-compute:
 
 jenkins: update-box update-submodules destroy
 	set -xe;\
-	$(MAKE) checkout-patchset;\
+	$(MAKE) apply-patchset;\
 	$(MAKE) tox stack-control  # $@
 
 update-box: $(BUILD_DIR)
@@ -116,6 +116,7 @@ update-submodules: $(BUILD_DIR)
 		set -ex;\
 		INTEGRATION_BRANCH=$(MUDULE_INTEGRATION_BRANCH);\
 		$(GIT) rebase --abort || true;\
+		$(GIT) cherry-pick --abort || true;\
 		$(GIT) fetch origin $$INTEGRATION_BRANCH;\
 		$(GIT) checkout -f FETCH_HEAD;\
 		$(GIT) checkout -B integration/base;\
@@ -125,17 +126,14 @@ update-submodules: $(BUILD_DIR)
 		$(GIT) remote add -f gerrit $(MODULE_GERRIT_URL);\
 		$(GIT) rebase gerrit/$(MODULE_GERRIT_BASE)'  # $@
 
-checkout-patchset:
+apply-patchset:
 	set -ex;\
-	if [ -n "$(GERRIT_PATCHSET_REVISION)" ]; then\
+	if [ -n "$(GERRIT_CHANGE_NUMBER)" ]; then\
 		$(GIT) submodule foreach '\
 			set -ex;\
 			MODULE_GERRIT_PROJECT="$(MODULE_GERRIT_PROJECT)";\
 			if [ "$${MODULE_GERRIT_PROJECT%.*}" == "$(GERRIT_PROJECT)" ]; then\
-				$(GIT) rebase --abort || true;\
-				$(GIT) checkout $(GERRIT_PATCHSET_REVISION);\
-				$(GIT) checkout -B $(GERRIT_TOPIC);\
-				$(GIT) rebase integration/base;\
+				$(GIT) review -vx $(GERRIT_CHANGE_NUMBER)/$(GERRIT_PATCHSET_NUMBER);\
 			fi';\
 	fi;\
 	$(GIT) submodule foreach '\
