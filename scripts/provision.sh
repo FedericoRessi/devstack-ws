@@ -42,24 +42,25 @@ if is_ubuntu; then
     install_package --force-yes git ebtables bridge-utils dkms module-assistant\
         build-essential curl socat fdutils linux-generic-lts-vivid\
         libffi-dev libssl-dev libxml2-dev libxslt1-dev\
-        python2.7 python2.7-dev python3 python3-dev python-setuptools\
-    
+        python2.7 python2.7-dev python3 python3-dev python-setuptools wget
+
     # Disable app armor
     if [ -r /lib/apparmor/functions ]; then
         sudo service apparmor stop
         sudo update-rc.d -f apparmor remove
-        sudo apt-get remove apparmor apparmor-utils -y
+        sudo apt-get remove -y apparmor apparmor-utils
     fi
 else
     sudo $PACKAGER update -y 
     install_package git rsync bridge-utils unzip screen tar\
         libvirt libvirt-python automake gcc patch net-tools ntp socat\
         libffi-devel openssl-devel redhat-rpm-configrpm\
-        python python-devel python3 python3-devel
+        python python-devel python3 python3-devel wget
 fi
 
-# Upgrade PIP and other Python packages
-sudo easy_install -U pip || install_package python-pip
+# Install PIP
+wget https://bootstrap.pypa.io/get-pip.py
+sudo python get-pip.py
 
 # use vagrant cachier with pip-accel
 PIP_ACCEL_DIR=/tmp/vagrant-cache/pip-accel

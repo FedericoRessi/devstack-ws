@@ -15,7 +15,7 @@ vm_boxes = {
     "fedora21" => "box-cutter/fedora21",
     "fedora22" => "box-cutter/fedora22",
     "fedora23" => "box-cutter/fedora23",
-    "centos7"  => "puppetlabs/centos-7.0-64-nocm"}
+    "centos7"  => "puppetlabs/centos-7.2-64-nocm"}
 
 vm_box_name = ENV["VAGRANT_BOX_NAME"]
 if vm_box_name == nil
@@ -29,7 +29,7 @@ vm_images = [
      '192.168.99.11',
      '192.168.50.11',
      12288],
-    
+
     ["compute",
      vm_box_name,
      '192.168.99.12',
