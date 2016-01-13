@@ -133,7 +133,8 @@ apply-patchset:
 			set -ex;\
 			MODULE_GERRIT_PROJECT="$(MODULE_GERRIT_PROJECT)";\
 			if [ "$${MODULE_GERRIT_PROJECT%.*}" == "$(GERRIT_PROJECT)" ]; then\
-				$(GIT) review -vx $(GERRIT_CHANGE_NUMBER)/$(GERRIT_PATCHSET_NUMBER);\
+				$(GIT) review -vd $(GERRIT_CHANGE_NUMBER),$(GERRIT_PATCHSET_NUMBER);\
+				$(GIT) rebase integration/base;\
 			fi';\
 	fi;\
 	$(GIT) submodule foreach '\
