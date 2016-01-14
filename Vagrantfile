@@ -20,6 +20,8 @@ vm_boxes = {
 vm_box_name = ENV["VAGRANT_BOX_NAME"]
 if vm_box_name == nil
     vm_box_name = "trusty"
+elsif vm_box_name == "centos7"
+    vm_cpus = 1
 end
 
 # available VM images

@@ -42,7 +42,8 @@ if is_ubuntu; then
     install_package --force-yes git ebtables bridge-utils dkms module-assistant\
         build-essential curl socat fdutils linux-generic-lts-vivid\
         libffi-dev libssl-dev libxml2-dev libxslt1-dev\
-        python2.7 python2.7-dev python3 python3-dev python-setuptools wget
+        python2.7 python2.7-dev python3 python3-dev python-setuptools\
+        python-pip wget\
 
     # Disable app armor
     if [ -r /lib/apparmor/functions ]; then
@@ -59,8 +60,10 @@ else
 fi
 
 # Install PIP
-wget https://bootstrap.pypa.io/get-pip.py
-sudo python get-pip.py
+if ! which pip; then
+    wget https://bootstrap.pypa.io/get-pip.py
+    sudo python get-pip.py
+fi
 
 # use vagrant cachier with pip-accel
 PIP_ACCEL_DIR=/tmp/vagrant-cache/pip-accel
