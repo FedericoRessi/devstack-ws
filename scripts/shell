@@ -123,19 +123,26 @@ def main(command):
             command)
 
     if log_path:
-        with open(log_path) as ansi_log:
-            ansi = ''.join(ansi_log)
+        with open(log_path, 'rb') as ansi_log:
+            ansi = ' '.join(ansi_log)
 
         new_log_path = os.path.splitext(log_path)[0] + '_' + label
 
         # write txt file without colors
-        with open(new_log_path + '.txt', 'wb') as txt_file:
-            txt_file.write(re.compile(r'\x1b[^m]*m').sub('', ansi))
+        with open(new_log_path + '.txt', 'wb') as ascii_file:
+            ascii = re.compile(r'\x1b[^m]*m').sub('', ansi)
+            ascii_file.write(ascii)
 
         # write html file with colors
         with open(new_log_path + '.html', 'wb') as html_file:
             converter = Ansi2HTMLConverter(dark_bg=True, scheme='xterm')
-            html_file.write(converter.convert(ansi))
+            try:
+                html_file.write(converter.convert(ansi))
+            except Exception:
+                logger.exception(
+                    'Unable to convert ansi 2 html, retry with ascii 2 html')
+                bash('-c', "cat {} | ansi2html | > {}".format(
+                    log_path, new_log_path + '.html'))
 
     return result
 
