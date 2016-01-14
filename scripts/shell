@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import datetime
+import gzip
 import logging
 import os
 from os import path
@@ -9,8 +10,8 @@ import sys
 import time
 
 import pip
-from sh import bash, tail
 from ansi2html import Ansi2HTMLConverter
+from sh import bash, tail, ErrorReturnCode
 
 LOG = logging.getLogger('bash')
 
@@ -80,7 +81,7 @@ def main(command):
 
     try:
         result = bash('-x', '-c', command, _out=log_output, _err=log_error)
-    except sh.ErrorReturnCode as error:
+    except ErrorReturnCode as error:
         result = error.exit_code
         log_tail = ""
         if log_path:
@@ -105,12 +106,13 @@ def main(command):
         else:
             new_log_path += '_FAILED'
 
-        # write file without colors
-        with open(new_log_path + '.txt', 'wt') as txt_file:
+        # write txt file without colors
+        with gzip.open(new_log_path + '.txt.gz', 'wb') as txt_file:
             txt_file.write(re.compile(r'\x1b[^m]*m').sub('', ansi))
 
-        with open(new_log_path + '.html', 'wt') as html_file:
-            html_file.write(Ansi2HTMLConverter().convert(ansi))
+        # write html file with colors
+        with gzip.open(new_log_path + '.html.gz', 'wb') as html_file:
+            html_file.write(Ansi2HTMLConverter(dark_bg=False).convert(ansi))
 
     return result
 

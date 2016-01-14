@@ -29,9 +29,11 @@ all: tox stack
 tox: tox-devstack tox-networking-odl
 
 tox-devstack: $(BUILD_DIR)
+	unset PYTHONPATH;\
 	cd devstack && tox -v  # $@
 
 tox-networking-odl: $(BUILD_DIR)
+	unset PYTHONPATH;\
 	cd networking-odl && tox -v  # $@
 
 $(BUILD_DIR):
