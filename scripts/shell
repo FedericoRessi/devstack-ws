@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import datetime
-import gzip
 import logging
 import os
 from os import path
@@ -9,7 +8,6 @@ import re
 import sys
 import time
 
-import pip
 from ansi2html import Ansi2HTMLConverter
 from sh import bash, tail, ErrorReturnCode
 
@@ -72,10 +70,12 @@ def main(command):
     logging.getLogger('sh').setLevel(logging.WARNING)
 
     output_logger = logging.getLogger('out')
+
     def log_output(msg):
         output_logger.info(msg[:-1])
 
     error_logger = logging.getLogger('err')
+
     def log_error(msg):
         error_logger.info(msg[:-1])
 
@@ -133,16 +133,18 @@ def main(command):
             ascii = re.compile(r'\x1b[^m]*m').sub('', ansi)
             ascii_file.write(ascii)
 
-        # write html file with colors
-        with open(new_log_path + '.html', 'wb') as html_file:
-            converter = Ansi2HTMLConverter(dark_bg=True, scheme='xterm')
-            try:
-                html_file.write(converter.convert(ansi))
-            except Exception:
-                logger.exception(
-                    'Unable to convert ansi 2 html, retry with ascii 2 html')
-                bash('-c', "cat {} | ansi2html | > {}".format(
-                    log_path, new_log_path + '.html'))
+        converter = Ansi2HTMLConverter(dark_bg=True, scheme='xterm')
+        try:
+            # write html file with colors
+            html = converter.convert(ansi)
+            with open(new_log_path + '.html', 'wb') as html_file:
+                html_file.write(html)
+
+        except Exception:
+            logger.exception(
+                'Unable to convert ansi 2 html, retry with ascii 2 html')
+            bash('-c', "cat {} | ansi2html | > {}".format(
+                log_path, new_log_path + '.html'))
 
     return result
 
