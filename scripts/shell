@@ -129,11 +129,11 @@ def main(command):
         new_log_path = os.path.splitext(log_path)[0] + '_' + label
 
         # write txt file without colors
-        with gzip.open(new_log_path + '.txt.gz', 'wb') as txt_file:
+        with open(new_log_path + '.txt', 'wb') as txt_file:
             txt_file.write(re.compile(r'\x1b[^m]*m').sub('', ansi))
 
         # write html file with colors
-        with gzip.open(new_log_path + '.html.gz', 'wb') as html_file:
+        with open(new_log_path + '.html', 'wb') as html_file:
             converter = Ansi2HTMLConverter(dark_bg=True, scheme='xterm')
             html_file.write(converter.convert(ansi))
 
