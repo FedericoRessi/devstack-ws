@@ -86,7 +86,7 @@ def main(command):
 
     except ErrorReturnCode as error:
         result = error.exit_code
-        label = "FAILED(1)"
+        label = "FAILED"
         severity = logging.ERROR
 
     except Exception:
