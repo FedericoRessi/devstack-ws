@@ -79,32 +79,54 @@ def main(command):
     def log_error(msg):
         error_logger.info(msg[:-1])
 
+    logger.info('Start executing commmand: %s', command)
+
     try:
-        result = bash('-x', '-c', command, _out=log_output, _err=log_error)
+        bash('-x', '-c', command, _out=log_output, _err=log_error)
+
     except ErrorReturnCode as error:
         result = error.exit_code
-        log_tail = ""
-        if log_path:
-            log_tail = tail('-n', '100', log_path)
-        LOG.error(
-            'Error executing command:\n'
-            '    Command: %s\n'
-            '    Exit code: %s\n'
-            '    Log file: %s\n'
-            '%s',
-            command, error.exit_code, log_path, log_tail)
+        label = "FAILED(1)"
+        severity = logging.ERROR
+
+    except Exception:
+        result = 1
+        label = "ERROR"
+        severity = logging.ERROR
+        logger.exception('Internal error.')
+
+    except BaseException:
+        result = 1
+        severity = logging.WARNING
+        label = "INTERRUPTED"
+
     else:
         result = 0
+        label = 'SUCCESS'
+        severity = logging.INFO
+
+    if result != 0:
+        LOG.log(
+            severity,
+            'Error executing command:\n'
+            '    Command: %s\n'
+            '    Status: %s\n'
+            '    Exit code: %s\n'
+            '    Log file: %s\n',
+            command, label, result, log_path)
+        if log_path:
+            tail('-n', '100', log_path, _out=sys.stderr)
+    else:
+        logger.info(
+            'Commmand executed with success:\n'
+            '    Command: %s',
+            command)
 
     if log_path:
         with open(log_path) as ansi_log:
             ansi = ''.join(ansi_log)
 
-        new_log_path = os.path.splitext(log_path)[0]
-        if result == 0:
-            new_log_path += '_SUCCESS'
-        else:
-            new_log_path += '_FAILED'
+        new_log_path = os.path.splitext(log_path)[0] + '_' + label
 
         # write txt file without colors
         with gzip.open(new_log_path + '.txt.gz', 'wb') as txt_file:
@@ -112,7 +134,8 @@ def main(command):
 
         # write html file with colors
         with gzip.open(new_log_path + '.html.gz', 'wb') as html_file:
-            html_file.write(Ansi2HTMLConverter(dark_bg=False).convert(ansi))
+            converter = Ansi2HTMLConverter(dark_bg=True, scheme='xterm')
+            html_file.write(converter.convert(ansi))
 
     return result
 
