@@ -18,7 +18,7 @@ LOG = logging.getLogger('bash')
 format_log_name = '{name}'.format
 ROOT_DIR = path.dirname(path.dirname(path.abspath(__file__)))
 format_log_path = path.join(
-    ROOT_DIR, 'logs', '{timestamp}_{description}.log').format
+    ROOT_DIR, 'logs', '{timestamp}_{description}.raw').format
 TIMESTAMP_FORMAT = '%y-%m-%d_%H:%M:%S'
 LOG_FORMAT = '%(asctime)-15s | %(message)s'
 
