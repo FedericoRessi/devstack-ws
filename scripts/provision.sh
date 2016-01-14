@@ -70,9 +70,9 @@ PIP_ACCEL_DIR=/tmp/vagrant-cache/pip-accel
 sudo mkdir -p $PIP_ACCEL_DIR/root $PIP_ACCEL_DIR/vagrant
 sudo ln -sfn $PIP_ACCEL_DIR/root /var/cache/pip-accel
 sudo ln -sfn $PIP_ACCEL_DIR/vagrant ~/.pip-accel
-sudo pip install -U pip pip-accel 
+sudo pip install -U pip-accel 
 sudo ln -sfn pip-accel /usr/local/bin/pip2.7
-sudo pip-accel install -U tox certifi pyopenssl ndg-httpsclient pyasn1
+sudo pip-accel install -U pip tox certifi pyopenssl ndg-httpsclient pyasn1
 
 sudo chown -fR vagrant.vagrant /home/vagrant
 

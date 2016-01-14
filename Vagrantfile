@@ -48,6 +48,7 @@ log_dir = ENV["LOG_DIR"]
 if log_dir == nil
     log_dir = "#{Dir.pwd}/logs"
 end
+
 # --- vagrant meat ------------------------------------------------------------
 
 Vagrant.configure(2) do |config|
