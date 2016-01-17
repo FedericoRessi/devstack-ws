@@ -8,6 +8,7 @@ cinder/
 glance/
 networking-ovs-dpdk/
 tempest/
+noVNC/
 logs
 python-novaclient/
 *.pyc
