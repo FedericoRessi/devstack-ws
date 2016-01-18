@@ -31,11 +31,15 @@ tox: tox-devstack tox-networking-odl
 
 tox-devstack: $(BUILD_DIR)
 	unset PYTHONPATH;\
-	cd devstack && tox -v  # $@
+	set -e;\
+	cd devstack;\
+	../scripts/shell --repeat=10 -v -c 'tox'  # $@
 
 tox-networking-odl: $(BUILD_DIR)
 	unset PYTHONPATH;\
-	cd networking-odl && tox -v  # $@
+	set -e;\
+	cd networking-odl;\
+	../scripts/shell --repeat=10 -v -c 'tox'  # $@
 
 $(BUILD_DIR):
 	mkdir -p $(LOG_DIR);\
@@ -103,7 +107,7 @@ jenkins: $(BUILD_DIR)
 	set -xe;\
 	$(MAKE) update-box update-submodules destroy;\
 	$(MAKE) apply-patchset;\
-	$(MAKE) tox stack-control  # $@
+	$(MAKE) -j 2 tox stack-control  # $@
 
 update-box: $(BUILD_DIR)
 	if vagrant box outdated 2>&1 | grep 'vagrant box update'; then\

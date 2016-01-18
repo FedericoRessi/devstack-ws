@@ -67,8 +67,8 @@ class Bash(object):
                 result = self._execute(command_line)
                 if result != 0 and repeat > 1:
                     LOG.error('Failed after %d executions.', i + 1)
-                return result
-
+                    return result
+            return result
 
     def _execute(self, command_line):
         LOG.debug(
