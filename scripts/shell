@@ -2,7 +2,7 @@
 
 import sys
 
-from bash import bash
+from bash import execute
 
 if __name__ == '__main__':
-    exit(bash(*sys.argv[1:]))
+    exit(execute(sys.argv[1:]))

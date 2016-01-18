@@ -5,7 +5,8 @@ BUILD_DIR ?= $(abspath build/$(BUILD_NUMBER))
 export LOG_DIR := $(BUILD_DIR)/logs
 
 # bash wrapper that redirects stout and sterr to log files
-SHELL := scripts/shell
+SHELL := scripts/shell -v
+MAKE := make
 
 GIT := git --no-pager
 
@@ -98,8 +99,9 @@ destroy-compute:
 
 # -----------------------------------------------------------------------------
 
-jenkins: update-box update-submodules destroy
+jenkins: $(BUILD_DIR)
 	set -xe;\
+	$(MAKE) update-box update-submodules destroy;\
 	$(MAKE) apply-patchset;\
 	$(MAKE) tox stack-control  # $@
 
