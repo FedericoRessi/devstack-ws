@@ -33,13 +33,13 @@ tox-devstack: $(BUILD_DIR)
 	unset PYTHONPATH;\
 	set -e;\
 	cd devstack;\
-	../scripts/shell --repeat=10 -v -c 'tox'  # $@
+	tox  # $@
 
 tox-networking-odl: $(BUILD_DIR)
 	unset PYTHONPATH;\
 	set -e;\
 	cd networking-odl;\
-	../scripts/shell --repeat=10 -v -c 'tox'  # $@
+	tox  # $@
 
 $(BUILD_DIR):
 	mkdir -p $(LOG_DIR);\
@@ -47,49 +47,43 @@ $(BUILD_DIR):
 
 # -----------------------------------------------------------------------------
 
-stack: stack-control stack-compute
+create: create-control create-compute
 
-stack-control: boot-control
-	vagrant ssh control -c '\
-		set -xe;\
-		cd /opt/stack/devstack;\
-		rm -fr /opt/stack/logs/*;\
-		./stack.sh'  # $@
-
-stack-compute: boot-compute
-	vagrant ssh compute -c '\
-		set -xe;\
-		cd /opt/stack/devstack;\
-		rm -fr /opt/stack/logs/*;\
-		./stack.sh'  # $@
-
-boot-control: $(BUILD_DIR)
+create-control: $(BUILD_DIR)
 	set -xe;\
-	vagrant up control --no-provision;\
-	vagrant provision control;\
-	vagrant ssh control -c '\
-		cd /opt/stack/devstack;\
-		./unstack.sh;\
-		true';\
-	vagrant reload control  # $@
+	vagrant status | grep control | grep 'not created' || exit 0;\
+	vagrant up control;\
+	vagrant halt  # $@
 
-boot-compute: $(BUILD_DIR)
+create-compute: $(BUILD_DIR)
 	set -xe;\
-	vagrant up compute --no-provision;\
-	vagrant provision compute;\
-	vagrant ssh compute -c '\
-		cd /opt/stack/devstack;\
-		./unstack.sh;\
-		true';\
-	vagrant reload compute  # $@
+	vagrant status | grep compute | grep 'not created' || exit 0;\
+	vagrant up compute;\
+	vagrant halt  # $@
 
 # -----------------------------------------------------------------------------
 
-clean: clean-cache destroy
-	rm -fR $(BUILD_DIR) $(LOG_DIR)  # $@
+stack: stack-control stack-compute
 
-clean-cache:
-	rm -fR .vagrant */.tox  # $@
+stack-control: create-control
+	set -xe;\
+	vagrant up control;\
+	vagrant ssh control -c '\
+		set -xe;\
+		cd /opt/stack/devstack;\
+		rm -fr /opt/stack/logs/*;\
+		./stack.sh'  # $@
+
+stack-compute: create-compute
+	set -xe;\
+	vagrant up compute;\
+	vagrant ssh compute -c '\
+		set -xe;\
+		cd /opt/stack/devstack;\
+		rm -fr /opt/stack/logs/*;\
+		./stack.sh'  # $@
+
+# -----------------------------------------------------------------------------
 
 destroy: destroy-control destroy-compute
 
@@ -103,6 +97,16 @@ destroy-compute:
 
 # -----------------------------------------------------------------------------
 
+clean: clean-cache clean-logs
+
+clean-logs:
+	rm -fR $(BUILD_DIR) $(LOG_DIR)  # $@
+
+clean-cache: destroy
+	rm -fR .vagrant */.tox  # $@
+
+# -----------------------------------------------------------------------------
+
 jenkins: $(BUILD_DIR)
 	set -xe;\
 	$(MAKE) update-box update-submodules destroy;\
@@ -113,8 +117,7 @@ update-box: $(BUILD_DIR)
 	if vagrant box outdated 2>&1 | grep 'vagrant box update'; then\
 		$(MAKE) destroy;\
 		vagrant box update;\
-	fi;\
-	true # $@
+	fi  # $@
 
 update-submodules: $(BUILD_DIR)
 	set -xe;\
