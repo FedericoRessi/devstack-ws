@@ -11,7 +11,7 @@ min_cpus = 1
 vm_cpus = ENV['VAGRANT_CPUS'].to_i
 if vm_cpus == 0
     vm_cpus = host_cpus / 4
-fi
+end
 vm_cpus = [min_cpus, vm_cpus, max_cpus].sort[1]
 
 vm_boxes = {
