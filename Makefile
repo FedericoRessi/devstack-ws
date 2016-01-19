@@ -71,7 +71,6 @@ stack-control: create-control
 	vagrant ssh control -c '\
 		set -xe;\
 		cd /opt/stack/devstack;\
-		rm -fr /opt/stack/logs/*;\
 		./stack.sh'  # $@
 
 stack-compute: create-compute
@@ -80,7 +79,6 @@ stack-compute: create-compute
 	vagrant ssh compute -c '\
 		set -xe;\
 		cd /opt/stack/devstack;\
-		rm -fr /opt/stack/logs/*;\
 		./stack.sh'  # $@
 
 # -----------------------------------------------------------------------------
