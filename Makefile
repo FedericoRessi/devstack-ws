@@ -29,19 +29,19 @@ all: tox stack
 
 tox: tox-devstack tox-networking-odl
 
-tox-devstack: $(BUILD_DIR)
+tox-devstack: $(LOG_DIR)
 	unset PYTHONPATH;\
 	set -e;\
 	cd devstack;\
 	tox  # $@
 
-tox-networking-odl: $(BUILD_DIR)
+tox-networking-odl: $(LOG_DIR)
 	unset PYTHONPATH;\
 	set -e;\
 	cd networking-odl;\
 	tox  # $@
 
-$(BUILD_DIR):
+$(LOG_DIR):
 	mkdir -p $(LOG_DIR);\
 	ln -sfn $(LOG_DIR) ./logs
 
@@ -49,13 +49,13 @@ $(BUILD_DIR):
 
 create: create-control create-compute
 
-create-control: $(BUILD_DIR)
+create-control: $(LOG_DIR)
 	set -xe;\
 	vagrant status | grep control | grep 'not created' || exit 0;\
 	vagrant up control;\
 	vagrant reload control  # $@
 
-create-compute: $(BUILD_DIR)
+create-compute: $(LOG_DIR)
 	set -xe;\
 	vagrant status | grep compute | grep 'not created' || exit 0;\
 	vagrant up compute;\
@@ -86,11 +86,11 @@ stack-compute: create-compute
 destroy: destroy-control destroy-compute
 
 destroy-control:
-	rm -fR $(BUILD_DIR)/logs/control;\
+	rm -fR $(LOG_DIR)/control;\
 	vagrant destroy -f control  # $@
 
 destroy-compute:
-	rm -fR $(BUILD_DIR)/logs/compute;\
+	rm -fR $(LOG_DIR)/compute;\
 	vagrant destroy -f compute  # $@
 
 # -----------------------------------------------------------------------------
@@ -98,26 +98,26 @@ destroy-compute:
 clean: clean-cache clean-logs
 
 clean-logs:
-	rm -fR $(BUILD_DIR) $(LOG_DIR)  # $@
+	rm -fR $(LOG_DIR) $(BUILD_DIR)  # $@
 
 clean-cache: destroy
 	rm -fR .vagrant */.tox  # $@
 
 # -----------------------------------------------------------------------------
 
-jenkins: $(BUILD_DIR)
+jenkins: $(LOG_DIR)
 	set -xe;\
 	$(MAKE) update-box update-submodules destroy;\
 	$(MAKE) apply-patchset;\
 	$(MAKE) tox stack-control  # $@
 
-update-box: $(BUILD_DIR)
+update-box: $(LOG_DIR)
 	if vagrant box outdated 2>&1 | grep 'vagrant box update'; then\
 		$(MAKE) destroy;\
 		vagrant box update;\
 	fi  # $@
 
-update-submodules: $(BUILD_DIR)
+update-submodules: $(LOG_DIR)
 	set -xe;\
 	$(GIT) submodule sync;\
 	$(GIT) submodule update --init --remote --recursive;\
