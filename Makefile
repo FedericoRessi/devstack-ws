@@ -109,7 +109,7 @@ jenkins: $(BUILD_DIR)
 	set -xe;\
 	$(MAKE) update-box update-submodules destroy;\
 	$(MAKE) apply-patchset;\
-	$(MAKE) -j 2 tox stack-control  # $@
+	$(MAKE) tox stack-control  # $@
 
 update-box: $(BUILD_DIR)
 	if vagrant box outdated 2>&1 | grep 'vagrant box update'; then\
