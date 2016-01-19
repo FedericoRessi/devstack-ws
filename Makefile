@@ -53,13 +53,13 @@ create-control: $(BUILD_DIR)
 	set -xe;\
 	vagrant status | grep control | grep 'not created' || exit 0;\
 	vagrant up control;\
-	vagrant reload  # $@
+	vagrant reload control  # $@
 
 create-compute: $(BUILD_DIR)
 	set -xe;\
 	vagrant status | grep compute | grep 'not created' || exit 0;\
 	vagrant up compute;\
-	vagrant reload  # $@
+	vagrant reload compute  # $@
 
 # -----------------------------------------------------------------------------
 

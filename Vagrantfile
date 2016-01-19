@@ -5,7 +5,14 @@
 
 # number of CPUs for every VM
 host_cpus = `python -c "import multiprocessing; print multiprocessing.cpu_count()"`.to_i
-vm_cpus = [2, [ENV['VAGRANT_CPUS'].to_i, host_cpus, 32].min].max
+max_cpus = [host_cpus, 32].max
+min_cpus = 1
+
+vm_cpus = ENV['VAGRANT_CPUS'].to_i
+if vm_cpus == 0
+    vm_cpus = host_cpus / 4
+fi
+vm_cpus = [min_cpus, vm_cpus, max_cpus].sort[1]
 
 vm_boxes = {
     "precise"  => "ubuntu/precise64",
@@ -21,7 +28,7 @@ vm_box_name = ENV["VAGRANT_BOX_NAME"]
 if vm_box_name == nil
     vm_box_name = "trusty"
 elsif vm_box_name == "centos7"
-    vm_cpus = 1
+   vm_cpus = 1
 end
 
 # available VM images
