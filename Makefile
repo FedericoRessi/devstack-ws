@@ -22,6 +22,10 @@ GERRIT_PROJECT ?= ""
 GERRIT_CHANGE_NUMBER ?= ""
 GERRIT_PATCHSET_NUMBER ?= ""
 
+TOX ?= tox
+TOX_IN_VM ?= false
+
+
 all: tox stack
 
 
@@ -29,17 +33,28 @@ all: tox stack
 
 tox: tox-devstack tox-networking-odl
 
+# if TOX_IN_VM is true then run tox inside of control VM after it is stacked
+ifeq ($(TOX_IN_VM),true)
+    RUN_TOX = vagrant ssh -c 'cd /opt/stack/$1; $(TOX)'
+    tox-devstack tox-networking-odl: stack-control
+else
+    RUN_TOX = cd $1; $(TOX)
+endif
+ifneq ($(TOX_IN_VM),false)
+    $(warning TOX_IN_VM can be only true or false)
+endif
+
+
 tox-devstack: $(LOG_DIR)
 	unset PYTHONPATH;\
 	set -e;\
-	cd devstack;\
-	tox  # $@
+	$(call RUN_TOX,devstack) # $@
 
 tox-networking-odl: $(LOG_DIR)
 	unset PYTHONPATH;\
 	set -e;\
-	cd networking-odl;\
-	tox  # $@
+	$(call RUN_TOX,networking-odl) # $@
+
 
 $(LOG_DIR):
 	mkdir -p $(LOG_DIR);\
@@ -71,7 +86,8 @@ stack-control: create-control
 	vagrant ssh control -c '\
 		set -xe;\
 		cd /opt/stack/devstack;\
-		./stack.sh'  # $@
+		./stack.sh;\
+		[ -f STACKED ] || (./stack.sh && touch STACKED);  # $@
 
 stack-compute: create-compute
 	set -xe;\
@@ -79,7 +95,7 @@ stack-compute: create-compute
 	vagrant ssh compute -c '\
 		set -xe;\
 		cd /opt/stack/devstack;\
-		./stack.sh'  # $@
+		[ -f STACKED ] || (./stack.sh && touch STACKED);  # $@
 
 # -----------------------------------------------------------------------------
 
