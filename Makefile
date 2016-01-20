@@ -10,6 +10,7 @@ MAKE := make
 
 GIT := git --no-pager
 
+
 SUBMODULE = $$(basename $$(pwd))
 MODULE_INTEGRATION_BRANCH = `../scripts/valuefromini ../.gitmodules "submodule \"$(SUBMODULE)\"" branch`
 MODULE_GERRIT_HOST = `../scripts/valuefromini .gitreview gerrit host review.openstack.org`
@@ -23,25 +24,46 @@ GERRIT_CHANGE_NUMBER ?= ""
 GERRIT_PATCHSET_NUMBER ?= ""
 
 TOX ?= tox
-TOX_IN_VM ?= false
+
+# Valid values: guest, host, skip
+TOX_MODE ?= host
 
 
-all: tox stack
+all: stack
+
+
+$(LOG_DIR):
+	mkdir -p $(LOG_DIR);\
+	ln -sfn $(LOG_DIR) ./logs
 
 
 # -----------------------------------------------------------------------------
+# TOX support
 
 tox: tox-devstack tox-networking-odl
 
-# if TOX_IN_VM is true then run tox inside of control VM after it is stacked
-ifeq ($(TOX_IN_VM),true)
-    RUN_TOX = vagrant ssh -c 'cd /opt/stack/$1; $(TOX)'
-    tox-devstack tox-networking-odl: stack-control
-else
+# if TOX_MODE is host then run tox inside of host machine
+ifeq ($(TOX_MODE),host)
+    all jenkins: tox
     RUN_TOX = cd $1; $(TOX)
 endif
-ifneq ($(TOX_IN_VM),false)
-    $(warning TOX_IN_VM can be only true or false)
+
+# if TOX_MODE is guest then run tox inside of control VM after it is stacked
+ifeq ($(TOX_MODE),guest)
+    all jenkins: tox
+    tox-devstack tox-networking-odl: create-control
+    RUN_TOX = vagrant ssh control -c 'cd /opt/stack/$1; $(TOX)'
+endif
+
+# if TOX_MODE is skip then skip running tox at all
+ifeq ($(TOX_MODE),skip)
+    RUN_TOX = echo "Skip running tox."
+endif
+
+$(info RUN_TOX: $(RUN_TOX))
+
+ifeq ($(RUN_TOX),)
+    $(error TOX_MODE can be only: host, guest or skip)
 endif
 
 
@@ -56,25 +78,27 @@ tox-networking-odl: $(LOG_DIR)
 	$(call RUN_TOX,networking-odl) # $@
 
 
-$(LOG_DIR):
-	mkdir -p $(LOG_DIR);\
-	ln -sfn $(LOG_DIR) ./logs
-
 # -----------------------------------------------------------------------------
 
 create: create-control create-compute
 
 create-control: $(LOG_DIR)
-	set -xe;\
-	vagrant status | grep control | grep 'not created' || exit 0;\
-	vagrant up control;\
-	vagrant reload control  # $@
+	if ! vagrant ssh control -c '[ -f ~/CREATED ]'; then\
+    	set -xe;\
+    	vagrant up control --no-provision;\
+    	vagrant provision control;\
+    	vagrant reload control;\
+    	vagrant ssh control -c 'touch ~/CREATED';\
+	fi  # $@
 
 create-compute: $(LOG_DIR)
-	set -xe;\
-	vagrant status | grep compute | grep 'not created' || exit 0;\
-	vagrant up compute;\
-	vagrant reload compute  # $@
+	if ! vagrant ssh compute -c '[ -f ~/CREATED ]'; then\
+    	set -xe;\
+    	vagrant up compute --no-provision;\
+    	vagrant provision compute;\
+    	vagrant reload compute;\
+    	vagrant ssh compute -c 'touch ~/CREATED;'\
+	fi  # $@
 
 # -----------------------------------------------------------------------------
 
@@ -82,20 +106,21 @@ stack: stack-control stack-compute
 
 stack-control: create-control
 	set -xe;\
-	vagrant up control;\
 	vagrant ssh control -c '\
-		set -xe;\
-		cd /opt/stack/devstack;\
-		./stack.sh;\
-		[ -f STACKED ] || (./stack.sh && touch STACKED);  # $@
+		if ! [ -f ~/STACKED ]; then\
+    		set -xe;\
+    		(cd /opt/stack/devstack && ./stack.sh);\
+    		touch ~/STACKED;\
+		fi'  # $@
 
 stack-compute: create-compute
 	set -xe;\
-	vagrant up compute;\
 	vagrant ssh compute -c '\
-		set -xe;\
-		cd /opt/stack/devstack;\
-		[ -f STACKED ] || (./stack.sh && touch STACKED);  # $@
+		if ! [ -f ~/STACKED ]; then\
+    		set -xe;\
+    		(cd /opt/stack/devstack && ./stack.sh);\
+    		touch ~/STACKED;\
+		fi'  # $@
 
 # -----------------------------------------------------------------------------
 
