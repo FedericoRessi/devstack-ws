@@ -24,17 +24,18 @@ vm_boxes = {
     "fedora23" => "box-cutter/fedora23",
     "centos7"  => "puppetlabs/centos-7.2-64-nocm"}
 
-use_nfs = ENV["VAGRANT_NFS"].to_i
-if use_nfs == 3
-    nfs_mount_options = ['rw', "vers=#{use_nfs}", 'tcp', 'fsc']
+use_nfs = false
+if ENV["USE_NFS"] == "true"
+    use_nfs = true
 end
+nfs_mount_options = ['rw', "vers=3", 'tcp', 'fsc']
 
 vm_box_name = ENV["VAGRANT_BOX_NAME"]
 if vm_box_name == nil
     vm_box_name = "trusty"
 elsif vm_box_name == "centos7"
     vm_cpus = 1
-    use_nfs = [3, use_nfs, 4].sort[1]
+    use_nfs = true
 end
 
 # available VM images
@@ -97,10 +98,10 @@ Vagrant.configure(2) do |config|
                 conf.vm.network "private_network", ip: nfs_ip, auto_config: true
                 conf.nfs.map_uid = Process.uid
                 conf.vm.synced_folder ".", "/vagrant", create: true,
-                    type: "nfs", mount_options: nfs_mount_options
+                    type: "nfs", mount_options: mount_options
                 conf.vm.synced_folder "#{log_dir}/#{vm_name}",
-                    "/opt/stack/logs", create: true, type: "nfs",
-                    mount_options: nfs_mount_options
+                    "/opt/stack/logs", create: true,
+                    type: "nfs", mount_options: mount_options
             else
                 conf.vm.synced_folder "#{log_dir}/#{vm_name}",
                     "/opt/stack/logs", create: true
