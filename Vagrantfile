@@ -98,10 +98,10 @@ Vagrant.configure(2) do |config|
                 conf.vm.network "private_network", ip: nfs_ip, auto_config: true
                 conf.nfs.map_uid = Process.uid
                 conf.vm.synced_folder ".", "/vagrant", create: true,
-                    type: "nfs", mount_options: mount_options
+                    type: "nfs", mount_options: nfs_mount_options
                 conf.vm.synced_folder "#{log_dir}/#{vm_name}",
                     "/opt/stack/logs", create: true,
-                    type: "nfs", mount_options: mount_options
+                    type: "nfs", mount_options: nfs_mount_options
             else
                 conf.vm.synced_folder "#{log_dir}/#{vm_name}",
                     "/opt/stack/logs", create: true

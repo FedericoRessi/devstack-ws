@@ -60,8 +60,6 @@ ifeq ($(TOX_MODE),skip)
     RUN_TOX = echo "Skip running tox."
 endif
 
-$(info RUN_TOX: $(RUN_TOX))
-
 ifeq ($(RUN_TOX),)
     $(error TOX_MODE can be only: host, guest or skip)
 endif
