@@ -29,7 +29,7 @@ TOX ?= tox
 TOX_MODE ?= host
 
 
-all: stack
+all: tox stack-control
 
 
 $(LOG_DIR):
@@ -44,13 +44,11 @@ tox: tox-devstack tox-networking-odl
 
 # if TOX_MODE is host then run tox inside of host machine
 ifeq ($(TOX_MODE),host)
-    all jenkins: tox
     RUN_TOX = cd $1; $(TOX)
 endif
 
 # if TOX_MODE is guest then run tox inside of control VM after it is stacked
 ifeq ($(TOX_MODE),guest)
-    all jenkins: tox
     tox-devstack tox-networking-odl: create-control
     RUN_TOX = vagrant ssh control -c 'cd /opt/stack/$1; $(TOX)'
 endif
@@ -107,7 +105,7 @@ stack-control: create-control
 	vagrant ssh control -c '\
 		if ! [ -f ~/STACKED ]; then\
     		set -xe;\
-    		(cd /opt/stack/devstack && ./stack.sh);\
+    		(cd /opt/stack/devstack && GIT_BASE=$$GIT_BASE ./stack.sh);\
     		touch ~/STACKED;\
 		fi'  # $@
 
@@ -116,7 +114,7 @@ stack-compute: create-compute
 	vagrant ssh compute -c '\
 		if ! [ -f ~/STACKED ]; then\
     		set -xe;\
-    		(cd /opt/stack/devstack && ./stack.sh);\
+    		(cd /opt/stack/devstack && GIT_BASE=$$GIT_BASE ./stack.sh);\
     		touch ~/STACKED;\
 		fi'  # $@
 
