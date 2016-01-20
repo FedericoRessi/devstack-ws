@@ -43,7 +43,7 @@ if is_ubuntu; then
         build-essential curl socat fdutils linux-generic-lts-vivid\
         libffi-dev libssl-dev libxml2-dev libxslt1-dev\
         python2.7 python2.7-dev python3 python3-dev python-setuptools\
-        python-pip wget cachefilesd
+        wget cachefilesd
 
     # Enable nfs caching
     sudo bash -c 'echo "RUN=yes" > /etc/default/cachefilesd'
@@ -77,10 +77,9 @@ PIP_ACCEL_DIR=/tmp/vagrant-cache/pip-accel
 sudo mkdir -p $PIP_ACCEL_DIR/root $PIP_ACCEL_DIR/vagrant
 sudo ln -sfn $PIP_ACCEL_DIR/root /var/cache/pip-accel
 sudo ln -sfn $PIP_ACCEL_DIR/vagrant ~/.pip-accel
-sudo pip install -U pip-accel 
+sudo pip install -U 'pip<8' pip-accel 
 sudo ln -sfn pip-accel /usr/local/bin/pip2.7
-sudo pip-accel install -U pip tox certifi pyopenssl ndg-httpsclient pyasn1 cffi\
-    httplib2
+sudo pip-accel install -U pip tox certifi pyopenssl ndg-httpsclient pyasn1 cffi
 
 sudo chown -fR vagrant.vagrant /home/vagrant
 
