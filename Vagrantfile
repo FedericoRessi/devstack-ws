@@ -24,10 +24,9 @@ vm_boxes = {
     "fedora23" => "box-cutter/fedora23",
     "centos7"  => "puppetlabs/centos-7.2-64-nocm"}
 
-use_nfs = false
-if ENV["VAGRANT_NFS"] == "true"
-    use_nfs = true
-    nfs_mount_options = ['rw', 'vers=3', 'tcp', 'fsc']
+use_nfs = ENV["VAGRANT_NFS"].to_i
+if use_nfs
+    nfs_mount_options = ['rw', "vers=#{use_nfs}", 'tcp', 'fsc']
 end
 
 vm_box_name = ENV["VAGRANT_BOX_NAME"]
@@ -35,7 +34,7 @@ if vm_box_name == nil
     vm_box_name = "trusty"
 elsif vm_box_name == "centos7"
     vm_cpus = 1
-    use_nfs = true
+    use_nfs = [3, use_nfs, 4].sort[1]
 end
 
 # available VM images
