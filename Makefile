@@ -107,7 +107,7 @@ clean-cache: destroy
 
 jenkins: $(LOG_DIR)
 	set -xe;\
-	$(MAKE) update-box update-submodules destroy;\
+	$(MAKE) destroy update-box update-submodules;\
 	$(MAKE) apply-patchset;\
 	$(MAKE) tox stack-control  # $@
 
