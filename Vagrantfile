@@ -25,7 +25,7 @@ vm_boxes = {
     "centos7"  => "puppetlabs/centos-7.2-64-nocm"}
 
 use_nfs = ENV["VAGRANT_NFS"].to_i
-if use_nfs
+if use_nfs == 3
     nfs_mount_options = ['rw', "vers=#{use_nfs}", 'tcp', 'fsc']
 end
 
