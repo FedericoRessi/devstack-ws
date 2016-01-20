@@ -24,25 +24,34 @@ vm_boxes = {
     "fedora23" => "box-cutter/fedora23",
     "centos7"  => "puppetlabs/centos-7.2-64-nocm"}
 
+use_nfs = false
+if ENV["VAGRANT_NFS"] == "true"
+    use_nfs = true
+    nfs_mount_options = ['rw', 'vers=3', 'tcp', 'fsc']
+end
+
 vm_box_name = ENV["VAGRANT_BOX_NAME"]
 if vm_box_name == nil
     vm_box_name = "trusty"
 elsif vm_box_name == "centos7"
-   vm_cpus = 1
+    vm_cpus = 1
+    use_nfs = true
 end
 
 # available VM images
 vm_images = [
     ["control",
      vm_box_name,
-     '192.168.99.11',
-     '192.168.50.11',
+     '192.168.1.10',
+     '192.168.2.10',
+     '192.168.3.10',
      12288],
 
     ["compute",
      vm_box_name,
-     '192.168.99.12',
-     '192.168.50.12',
+     '192.168.1.11',
+     '192.168.2.11',
+     '192.168.3.11',
      16384],
 ]
 
@@ -61,23 +70,21 @@ end
 Vagrant.configure(2) do |config|
 
     # For every available VM image
-    vm_images.each do |vm_name, vm_image, vm_ip1, vm_ip2, vm_memory|
+    vm_images.each do |vm_name, vm_image, control_ip, tenent_ip, nfs_ip, vm_memory|
         config.vm.define vm_name do |conf|
             conf.vm.box = vm_boxes[vm_image]
             conf.vm.hostname = vm_name
             # control network
-            conf.vm.network "private_network", ip: vm_ip1,
-                virtualbox__intnet: "intnet1", auto_config: true
+            conf.vm.network "private_network", ip: control_ip,
+                virtualbox__intnet: "controlnet", auto_config: true
             # tenent network
-            conf.vm.network "private_network", ip: vm_ip2,
-                virtualbox__intnet: "intnet2", auto_config: true
-            conf.vm.network "private_network", type: "dhcp",
-                virtualbox__intnet: "intnet3", auto_config: false
+            conf.vm.network "private_network", ip: tenent_ip,
+                virtualbox__intnet: "tenentnet", auto_config: true
 
             # assign a different random port to every vm instance
             # this avoid concurrency problems when running tests in parallel
-            conf.vm.network :forwarded_port, guest: 22, host: 22000 + rand(9999),
-                id: "ssh", auto_correct: true
+            conf.vm.network :forwarded_port, guest: 22,
+                host: 22000 + rand(9999), id: "ssh", auto_correct: true
 
             if vm_name == 'control'
                 conf.vm.network :forwarded_port, guest: 6080, host: 6080,
@@ -86,8 +93,19 @@ Vagrant.configure(2) do |config|
                     id: "openstack", auto_correct: true
             end
 
-            config.vm.synced_folder "#{log_dir}/#{vm_name}", "/opt/stack/logs",
-                create: true
+            if use_nfs
+                # nfs network
+                conf.vm.network "private_network", ip: nfs_ip, auto_config: true
+                conf.nfs.map_uid = Process.uid
+                conf.vm.synced_folder ".", "/vagrant", create: true,
+                    type: "nfs", mount_options: nfs_mount_options
+                conf.vm.synced_folder "#{log_dir}/#{vm_name}",
+                    "/opt/stack/logs", create: true, type: "nfs",
+                    mount_options: nfs_mount_options
+            else
+                conf.vm.synced_folder "#{log_dir}/#{vm_name}",
+                    "/opt/stack/logs", create: true
+            end
 
             conf.vm.provider "virtualbox" do |vb|
                 # Display the VirtualBox GUI when booting the machine
@@ -114,6 +132,16 @@ Vagrant.configure(2) do |config|
 
     if Vagrant.has_plugin?("vagrant-cachier")
         config.cache.scope = :machine
+        if use_nfs
+            config.cache.synced_folder_opts = {
+                type: :nfs,
+                mount_options: nfs_mount_options
+            }
+        end
+    end
+
+    if Vagrant.has_plugin?("vagrant-vbguest")
+        config.vbguest.auto_update = false
     end
 
     if git_proxy_wrapper != nil

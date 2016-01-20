@@ -43,7 +43,10 @@ if is_ubuntu; then
         build-essential curl socat fdutils linux-generic-lts-vivid\
         libffi-dev libssl-dev libxml2-dev libxslt1-dev\
         python2.7 python2.7-dev python3 python3-dev python-setuptools\
-        python-pip wget\
+        python-pip wget cachefilesd
+
+    # Enable nfs caching
+    sudo bash -c 'echo "RUN=yes" > /etc/default/cachefilesd'
 
     # Disable app armor
     if [ -r /lib/apparmor/functions ]; then
@@ -51,13 +54,17 @@ if is_ubuntu; then
         sudo update-rc.d -f apparmor remove
         sudo apt-get remove -y apparmor apparmor-utils
     fi
-else
-    sudo $PACKAGER update -y 
+
+elif is_centos; then
+    sudo $PACKAGER upgrade -y
     install_package git rsync bridge-utils unzip screen tar\
         libvirt libvirt-python automake gcc patch net-tools ntp socat\
-        libffi-devel openssl-devel redhat-rpm-configrpm\
-        python python-devel python3 python3-devel wget
+        libffi-devel openssl-devel python python-devel wget\
+        gcc kernel-devel kernel-headers dkms make bzip2 perl yum-utils
 fi
+
+# Increases git performance over nfs
+git config --global core.preloadindex true
 
 # Install PIP
 if ! which pip; then
@@ -72,7 +79,7 @@ sudo ln -sfn $PIP_ACCEL_DIR/root /var/cache/pip-accel
 sudo ln -sfn $PIP_ACCEL_DIR/vagrant ~/.pip-accel
 sudo pip install -U pip-accel 
 sudo ln -sfn pip-accel /usr/local/bin/pip2.7
-sudo pip-accel install -U pip tox certifi pyopenssl ndg-httpsclient pyasn1
+sudo pip-accel install -U pip tox certifi pyopenssl ndg-httpsclient pyasn1 cffi
 
 sudo chown -fR vagrant.vagrant /home/vagrant
 

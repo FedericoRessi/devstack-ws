@@ -3,4 +3,4 @@ if [ -x "$GIT_PROXY_WRAPPER" ]; then
     export GIT_PROXY_COMMAND="${GIT_PROXY_COMMAND:-$GIT_PROXY_WRAPPER}"
 fi
 
-export no_proxy="$(/vagrant/scripts/get_no_proxy || echo $no_proxy)"
+export no_proxy="$(/etc/default/get_no_proxy || echo $no_proxy)"

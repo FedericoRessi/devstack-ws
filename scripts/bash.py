@@ -187,7 +187,7 @@ class Bash(object):
             if file_handler:
                 file_handler.close()
 
-            if log_path:
+            if log_path and path.exists(log_path):
                 with open(log_path, 'rb') as ansi_log:
                     ansi = ansi_log.read()
 
