@@ -151,7 +151,7 @@ jenkins: $(LOG_DIR)
 update-box: $(LOG_DIR)
 	if vagrant box outdated 2>&1 | grep 'vagrant box update'; then\
 		$(MAKE) destroy;\
-		vagrant box update;\
+		vagrant box update || true;\
 	fi  # $@
 
 update-submodules: $(LOG_DIR)
@@ -178,7 +178,7 @@ apply-patchset:
 		$(GIT) submodule foreach '\
 			set -ex;\
 			MODULE_GERRIT_PROJECT="$(MODULE_GERRIT_PROJECT)";\
-			if [ "$${MODULE_GERRIT_PROJECT%.*}" == "$(GERRIT_PROJECT)" ]; then\
+			if [ "$${MODULE_GERRIT_PROJECT%.*}" == "$(GERRIT_PROJECT)" ]; then;\
 				$(GIT) review -vd $(GERRIT_CHANGE_NUMBER),$(GERRIT_PATCHSET_NUMBER);\
 				$(GIT) rebase integration/base;\
 			fi';\
