@@ -191,8 +191,7 @@ class Bash(object):
                     root.addHandler(txt_handler)
 
                 else:
-                    log_path = None
-                    file_handler = None
+                    log_path = file_handler = html_handler = txt_handler = None
                 self.log_path = log_path
         finally:
             self.output_logger = logging.getLogger('out')
@@ -250,7 +249,7 @@ _html_header = six.u(
 <title>%(title)s</title>
 <style type="text/css">\n%(style)s\n</style>
 </head>
-<body class="body_foreground body_background" bgcolor="#FFFFFF" style="font-size: %(font_size)s;" >
+<body class="body_foreground" bgcolor="#FFFFFF" style="font-size: %(font_size)s;" >
 <pre class="ansi2html-content">
 """)
 
@@ -269,6 +268,7 @@ class Ansi2HtmlStream(object):
     FOOTER = _html_footer
     Ansi2HTMLConverter = ansi2html.Ansi2HTMLConverter
     scheme = "xterm"
+    dark_bg = False
 
     def __init__(self, stream, ensure_trailing_newline=False, converter=None):
         self.stream = stream
@@ -283,7 +283,7 @@ class Ansi2HtmlStream(object):
             'style' : "\n".join(
                 str(s)
                 for s in ansi2html.style.get_styles(
-                    self.converter.dark_bg, self.scheme)),
+                    self.dark_bg, self.scheme)),
             'title' : self.converter.title,
             'font_size' : self.converter.font_size,
             'output_encoding' : self.converter.output_encoding})
