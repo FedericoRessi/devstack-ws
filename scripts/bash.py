@@ -2,15 +2,19 @@
 
 from contextlib import contextmanager
 import datetime
+import glob
 import logging
 import os
 from os import path
+import Queue
 import re
 import sys
 import time
 
-from ansi2html import Ansi2HTMLConverter
+import ansi2html
 import sh
+import six
+
 
 LOG = logging.getLogger('bash')
 
@@ -51,8 +55,9 @@ class Bash(object):
     timestamp_format = '%Y-%m-%d_%H:%M:%S'
     log_format = '%(asctime)-15s | %(message)s'
     log_dir = os.environ.get('LOG_DIR') or path.join(os.getcwd(), 'logs')
-    log_file_name_format = '{timestamp}_{log_name}.raw'
+    log_file_name_format = '{timestamp}_{log_name}_RUNNING'
     log_path = None
+    status = 'BEGIN'
 
     def __init__(self, log_name=None, log_level=logging.WARNING):
         self.log_name = log_name
@@ -108,7 +113,10 @@ class Bash(object):
         self.status = status
 
         if exit_code != 0 and self.log_level < logging.ERROR:
-            sh.tail('-n', '100', self.log_path, _out=sys.stderr)
+            stream = sys.stderr
+            stream.write('=' * 79 + '\n')
+            sh.tail('-n', '100', self.log_path + '.ansi', _out=stream)
+            stream.write('=' * 79 + '\n')
 
         LOG.log(
             severity,
@@ -167,10 +175,21 @@ class Bash(object):
                     log_path = self.new_log_path()
 
                 if path.isdir(path.dirname(log_path)):
-                    file_handler = logging.FileHandler(log_path, 'wt')
+                    file_handler = logging.FileHandler(log_path + '.ansi', 'wt')
                     file_handler.setLevel(logging.DEBUG)
                     file_handler.setFormatter(formatter)
                     root.addHandler(file_handler)
+
+                    html_handler = HtmlFileHandler(log_path + '.html', 'wt')
+                    html_handler.setLevel(logging.DEBUG)
+                    html_handler.setFormatter(formatter)
+                    root.addHandler(html_handler)
+
+                    txt_handler = TxtFileHandler(log_path + '.txt', 'wt')
+                    txt_handler.setLevel(logging.DEBUG)
+                    txt_handler.setFormatter(formatter)
+                    root.addHandler(txt_handler)
+
                 else:
                     log_path = None
                     file_handler = None
@@ -186,25 +205,120 @@ class Bash(object):
         finally:
             if file_handler:
                 file_handler.close()
+            if html_handler:
+                html_handler.close()
+            if txt_handler:
+                html_handler.close()
 
-            if log_path and path.exists(log_path):
-                with open(log_path, 'rb') as ansi_log:
-                    ansi = ansi_log.read()
+            if log_path:
+                for file_name in glob.glob(log_path + '.*'):
+                    new_file_name = file_name.replace(
+                        '_RUNNING.', '_' + self.status + '.')
+                    os.rename(file_name, new_file_name)
 
-                new_log_path = os.path.splitext(log_path)[0] +\
-                    '_' + self.status
 
-                # write txt file without colors
-                with open(new_log_path + '.txt', 'wb') as ascii_file:
-                    ascii = re.compile(r'\x1b[^m]*m').sub('', ansi)
-                    ascii_file.write(ascii)
+class HtmlFileHandler(logging.FileHandler):
+    """
+    A handler class which writes formatted logging records to disk files.
+    """
 
-                # write html file with colors
-                converter = Ansi2HTMLConverter(dark_bg=True, scheme='xterm')
-                html = converter.convert(ansi.decode('utf-8'))
-                with open(new_log_path + '.html', 'wb') as html_file:
-                    html_file.write(html.encode('utf-8'))
+    def _open(self):
+        output = super(HtmlFileHandler, self)._open()
+        input = Ansi2HtmlStream(output)
+        input.open()
+        return input
 
+
+class TxtFileHandler(logging.FileHandler):
+    """
+    A handler class which writes formatted logging records to disk files.
+    """
+
+    ansi_to_txt = re.compile(r'\x1b[^m]*m').sub
+
+    def emit(self, record):
+        record.msg = self.ansi_to_txt('', record.msg)
+        return super(TxtFileHandler, self).emit(record)
+
+
+_html_header = six.u(
+"""
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=%(output_encoding)s">
+<title>%(title)s</title>
+<style type="text/css">\n%(style)s\n</style>
+</head>
+<body class="body_foreground body_background" bgcolor="#FFFFFF" style="font-size: %(font_size)s;" >
+<pre class="ansi2html-content">
+""")
+
+
+_html_footer = six.u(
+"""
+</pre>
+</body>
+</html>
+""")
+
+
+class Ansi2HtmlStream(object):
+
+    HEADER = _html_header
+    FOOTER = _html_footer
+    Ansi2HTMLConverter = ansi2html.Ansi2HTMLConverter
+    scheme = "xterm"
+
+    def __init__(self, stream, ensure_trailing_newline=False, converter=None):
+        self.stream = stream
+        if not converter:
+            converter = self.Ansi2HTMLConverter()
+        self.converter = converter
+        self.ensure_trailing_newline = ensure_trailing_newline
+
+    def open(self):
+        return self.stream.write(
+            self.HEADER % {
+            'style' : "\n".join(
+                str(s)
+                for s in ansi2html.style.get_styles(
+                    self.converter.dark_bg, self.scheme)),
+            'title' : self.converter.title,
+            'font_size' : self.converter.font_size,
+            'output_encoding' : self.converter.output_encoding})
+        self._indent += 1
+        return self
+
+    def write(self, ansi):
+        html = self.converter.convert(
+            ansi, full=False,
+            ensure_trailing_newline=self.ensure_trailing_newline)
+        return self.stream.write(html)
+
+    def flush(self):
+        self.stream.flush()
+
+    def close(self):
+        self.stream.write(self.FOOTER)
+        self.stream.close()
+
+    _indent = 0
+
+    def __enter__(self):
+        if self._indent < 1:
+            self.open()
+            self.indent = 1
+        else:
+            self._indent += 1
+        return self
+
+    def __exit__(self, arg):
+        if self._indent > 1:
+            self._indent -= 1
+        else:
+            self.close()
+            self.indent = 0
 
 if __name__ == '__main__':
     exit(execute(sys.argv[1:]))
