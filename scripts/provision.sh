@@ -89,8 +89,6 @@ if ! cd "/opt/stack" 2> /dev/null; then
     cd "/opt/stack"
 fi
 
-sudo chown "vagrant.vagrant" "."
-
 # This is required by submodules
 sudo rsync -ua /vagrant/.git .
 

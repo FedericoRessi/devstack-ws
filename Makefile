@@ -1,8 +1,9 @@
 # Global variables ------------------------------------------------------------
 
 BUILD_NUMBER ?= 0
-BUILD_DIR ?= $(abspath build/$(BUILD_NUMBER))
+export BUILD_DIR ?= $(abspath build/$(BUILD_NUMBER))
 export LOG_DIR := $(BUILD_DIR)/logs
+export STACK_DIR := $(BUILD_DIR)/stack
 
 # bash wrapper that redirects stout and sterr to log files
 SHELL := scripts/shell -v
@@ -32,9 +33,21 @@ TOX_MODE ?= host
 all: tox stack-control
 
 
+WORK_DIRS = $(BUILD_DIR) $(LOG_DIR) $(STACK_DIR)
+
+
 $(LOG_DIR):
 	mkdir -p $(LOG_DIR);\
 	ln -sfn $(LOG_DIR) ./logs
+
+
+$(STACK_DIR):
+	mkdir -p $(STACK_DIR);\
+	ln -sfn $(STACK_DIR) ./stack
+
+
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
 
 
 # -----------------------------------------------------------------------------
@@ -63,12 +76,12 @@ ifeq ($(RUN_TOX),)
 endif
 
 
-tox-devstack: $(LOG_DIR)
+tox-devstack: $(WORK_DIRS)
 	unset PYTHONPATH;\
 	set -e;\
 	$(call RUN_TOX,devstack) # $@
 
-tox-networking-odl: $(LOG_DIR)
+tox-networking-odl: $(WORK_DIRS)
 	unset PYTHONPATH;\
 	set -e;\
 	$(call RUN_TOX,networking-odl) # $@
@@ -78,7 +91,7 @@ tox-networking-odl: $(LOG_DIR)
 
 create: create-control create-compute
 
-create-control: $(LOG_DIR)
+create-control: $(WORK_DIRS)
 	if ! vagrant ssh control -c '[ -f ~/CREATED ]'; then\
     	set -xe;\
     	vagrant up control --no-provision;\
@@ -87,7 +100,7 @@ create-control: $(LOG_DIR)
     	vagrant ssh control -c 'touch ~/CREATED';\
 	fi  # $@
 
-create-compute: $(LOG_DIR)
+create-compute: $(WORK_DIRS)
 	if ! vagrant ssh compute -c '[ -f ~/CREATED ]'; then\
     	set -xe;\
     	vagrant up compute --no-provision;\
@@ -135,26 +148,26 @@ destroy-compute:
 clean: clean-cache clean-logs
 
 clean-logs:
-	rm -fR $(LOG_DIR) $(BUILD_DIR)  # $@
+	rm -fR $(LOG_DIR)  # $@
 
 clean-cache: destroy
-	rm -fR .vagrant */.tox  # $@
+	rm -fR .vagrant */.tox $(WORK_DIRS) # $@
 
 # -----------------------------------------------------------------------------
 
-jenkins: $(LOG_DIR)
+jenkins: $(WORK_DIRS)
 	set -xe;\
 	$(MAKE) destroy update-box update-submodules;\
 	$(MAKE) apply-patchset;\
 	$(MAKE) tox stack-control  # $@
 
-update-box: $(LOG_DIR)
+update-box: $(WORK_DIRS)
 	if vagrant box outdated 2>&1 | grep 'vagrant box update'; then\
 		$(MAKE) destroy;\
 		vagrant box update || true;\
 	fi  # $@
 
-update-submodules: $(LOG_DIR)
+update-submodules: $(WORK_DIRS)
 	set -xe;\
 	$(GIT) submodule sync;\
 	$(GIT) submodule update --init --remote --recursive;\

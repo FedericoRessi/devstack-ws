@@ -60,9 +60,19 @@ http_proxy = ENV["http_proxy"]
 https_proxy = ENV["https_proxy"]
 no_proxy = ENV["no_proxy"]
 
+build_dir = ENV["BUILD_DIR"]
+if build_dir == nil
+    build_dir = "#{Dir.pwd}/build/0"
+end
+
 log_dir = ENV["LOG_DIR"]
 if log_dir == nil
-    log_dir = "#{Dir.pwd}/logs"
+    log_dir = "#{build_dir}/logs"
+end
+
+stack_dir = ENV["STACK_DIR"]
+if stack_dir == nil
+  stack_dir = "#{build_dir}/stack"
 end
 
 # --- vagrant meat ------------------------------------------------------------
@@ -99,12 +109,12 @@ Vagrant.configure(2) do |config|
                 conf.nfs.map_uid = Process.uid
                 conf.vm.synced_folder ".", "/vagrant", create: true,
                     type: "nfs", mount_options: nfs_mount_options
-                conf.vm.synced_folder "#{log_dir}/#{vm_name}",
-                    "/opt/stack/logs", create: true,
+                conf.vm.synced_folder "#{build_dir}/stack/#{vm_name}",
+                    "/opt/stack", create: true,
                     type: "nfs", mount_options: nfs_mount_options
             else
-                conf.vm.synced_folder "#{log_dir}/#{vm_name}",
-                    "/opt/stack/logs", create: true
+                conf.vm.synced_folder "#{build_dir}/stack/#{vm_name}",
+                    "/opt/stack", create: true
             end
 
             conf.vm.provider "virtualbox" do |vb|
