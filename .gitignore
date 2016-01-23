@@ -12,4 +12,5 @@ noVNC/
 logs
 python-novaclient/
 *.pyc
+stack
 
