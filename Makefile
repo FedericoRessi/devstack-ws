@@ -33,7 +33,7 @@ TOX_MODE ?= host
 all: tox stack-control
 
 
-WORK_DIRS = $(BUILD_DIR) $(LOG_DIR) $(STACK_DIR)
+WORK_DIRS = $(BUILD_DIR) $(STACK_DIR) $(LOG_DIR)
 
 
 $(LOG_DIR):
