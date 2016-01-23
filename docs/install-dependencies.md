@@ -80,14 +80,14 @@ cd devstack-ws
 make create-control
 ```
 
-You should have any error and you should expect having logs folder with all logs files marked terminating with '_SUCCESS.html' and no one marked as '_FAILED.html'. For example typing `ls logs` you should expect:
+If everthing goes right you should have any error printed out by make and you should expect to have `logs/` folder with all logs files marked terminating with '_SUCCESS.html' and no one marked as '_FAILED.html'. For example typing `ls logs\` you should expect:
 ```
 2016-01-23_12:51:28_create-control_SUCCESS.ansi	2016-01-23_12:51:28_create-control_SUCCESS.txt
 2016-01-23_12:51:28_create-control_SUCCESS.html
 ```
 
 ### About proxy configuration
-proxy enviroment variables as `http_proxy`, `https_proxy` and `no_proxy` found in host machine should be automatically forwarded to guest machine when creating it. If a sock proxy is required to use `GIT_PROXY_COMMAND` for having access to external repositories then the enviroment varriable will be used to search for your git proxy script and it will be installed inside guests VMS in `/etc/default/` then the enviroment vagrable in the VM will be set properly to be exported by /etc/profile when logging in.
+Proxy enviroment variables as `http_proxy`, `https_proxy` and `no_proxy` found in host machine should be automatically forwarded to guest machine when creating it. If a sock proxy is required to use `GIT_PROXY_COMMAND` for having access to external repositories then the enviroment varriable will be used to search for your git proxy script and it will be installed inside guests VMS in `/etc/default/` then the enviroment vagrable in the VM will be set properly to be exported by /etc/profile when logging in.
 
 ### Run OpenStack with DevStack
 After editing control.local.conf file with the configuration you would like to run just type following:
