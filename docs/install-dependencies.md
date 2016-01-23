@@ -87,7 +87,7 @@ You should have any error and you should expect having logs folder with all logs
 ```
 
 ### About proxy configuration
- * proxy enviroment variables as `http_proxy`, `https_proxy` and `no_proxy` found in host machine should be automatically forwarded to guest machine when creating it. If a sock proxy is required to use `GIT_PROXY_COMMAND` for having access to external repositories then the enviroment varriable will be used to search for your git proxy script and it will be installed inside guests VMS in `/etc/default/` then the enviroment vagrable in the VM will be set properly to be exported by /etc/profile when logging in.
+proxy enviroment variables as `http_proxy`, `https_proxy` and `no_proxy` found in host machine should be automatically forwarded to guest machine when creating it. If a sock proxy is required to use `GIT_PROXY_COMMAND` for having access to external repositories then the enviroment varriable will be used to search for your git proxy script and it will be installed inside guests VMS in `/etc/default/` then the enviroment vagrable in the VM will be set properly to be exported by /etc/profile when logging in.
 
 ### Run OpenStack with DevStack
 After editing control.local.conf file with the configuration you would like to run just type following:
