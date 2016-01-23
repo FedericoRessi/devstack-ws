@@ -6,7 +6,7 @@ This project is being used and tested on following operative systems:
   * [Fedora](https://getfedora.org) 21
   
 To use it you need to install following project dependencies:
- * [Command line tools](GNU Make, Git, wget, ...)
+ * Command line tools (GNU Make, Git, ...)
  * [Python](https://www.python.org) 2.7 with required libraries
  * [Vagrant](https://www.vagrantup.com/downloads.html) 1.8
  * [Virtual Box](https://www.virtualbox.org) 5.0
