@@ -70,7 +70,7 @@ sudo pip install ansi2html sh
  * vagrant-cachier (1.2.1)
  * vagrant-proxyconf (1.5.2)
 
-## Verify installation tu run devstack
+## Verify installation tu run DevStack
 
 Creating a VM the first time requires to download a lot of files from internet. Most of this files will be cachied on `.vagrant` hidden folder to speedup next times the VM is created.
 Clone the workspace and looks if it can creates a VM typing following
@@ -88,3 +88,9 @@ You should have any error and you should expect having logs folder with all logs
 
 ### About proxy configuration
  * proxy enviroment variables as `http_proxy`, `https_proxy` and `no_proxy` found in host machine should be automatically forwarded to guest machine when creating it. If a sock proxy is required to use `GIT_PROXY_COMMAND` for having access to external repositories then the enviroment varriable will be used to search for your git proxy script and it will be installed inside guests VMS in `/etc/default/` then the enviroment vagrable in the VM will be set properly to be exported by /etc/profile when logging in.
+
+### Run OpenStack with DevStack
+After editing control.local.conf file with the configuration you would like to run just type following:
+```
+make stack-control
+```
