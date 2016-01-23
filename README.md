@@ -11,7 +11,7 @@ The workspace can handle continous integrations inside jenkins.
 
 ## Getting started
 
-Before using it you should install project dependencies as pecified [here](docs/features/install-dependencies.md).
+Before using it you should install project dependencies as pecified [here](docs/install-dependencies.md).
 
 ## Features
 * [Deploy OpenStack](docs/features/deploy-openstack.md) repos to /opt/stack
