@@ -13,4 +13,4 @@ logs
 python-novaclient/
 *.pyc
 stack
-
+.settings/
