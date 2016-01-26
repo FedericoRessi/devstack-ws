@@ -58,6 +58,14 @@ From terminal type:
 sudo pip install ansi2html sh
 ```
 
+### Install Gerrit/git-review
+Git review is used by 'apply-patchset' make goal to set checkout a specific gerrit patchset.
+It is specially useful when using the workspace for continous integration.
+To install it you can use pip
+```
+sudo pip install git-review
+```
+
 ### Install Python 3.4 on OSX
 Dowload and istall package from [python.org](https://www.python.org/downloads/release/python-344/)
 
