@@ -3,7 +3,7 @@
 BUILD_NUMBER ?= 0
 export BUILD_DIR ?= $(abspath build/$(BUILD_NUMBER))
 export LOG_DIR := $(BUILD_DIR)/logs
-export STACK_DIR := $(BUILD_DIR)/stack
+# export STACK_DIR := $(BUILD_DIR)/stack
 
 # bash wrapper that redirects stout and sterr to log files
 SHELL := scripts/shell -v
@@ -33,7 +33,7 @@ TOX_MODE ?= host
 all: tox stack-control
 
 
-WORK_DIRS = $(BUILD_DIR) $(STACK_DIR) $(LOG_DIR)
+WORK_DIRS = $(BUILD_DIR) $(LOG_DIR) # $(STACK_DIR)
 
 
 $(LOG_DIR):
@@ -41,9 +41,9 @@ $(LOG_DIR):
 	ln -sfn $(LOG_DIR) ./logs
 
 
-$(STACK_DIR):
-	mkdir -p $(STACK_DIR);\
-	ln -sfn $(STACK_DIR) ./stack
+# $(STACK_DIR):
+# 	mkdir -p $(STACK_DIR);\
+# 	ln -sfn $(STACK_DIR) ./stack
 
 
 $(BUILD_DIR):

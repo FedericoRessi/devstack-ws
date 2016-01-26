@@ -6,3 +6,7 @@
 	path = devstack
 	url = https://github.com/FedericoRessi/devstack
 	branch = integration/master
+[submodule "neutron"]
+	path = neutron
+	url = https://github.com/FedericoRessi/neutron.git
+        branch = integration/master

@@ -2,7 +2,6 @@ build/
 .vagrant/
 requirements/
 keystone/
-neutron/
 nova/
 cinder/
 glance/
