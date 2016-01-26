@@ -89,6 +89,8 @@ if ! cd "/opt/stack" 2> /dev/null; then
     cd "/opt/stack"
 fi
 
+touch .test-write || sudo chown -fR vagrant.vagrant .
+
 # This is required by submodules
 sudo rsync -ua /vagrant/.git .
 
