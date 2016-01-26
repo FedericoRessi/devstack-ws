@@ -5,7 +5,7 @@
 
 # number of CPUs for every VM
 host_cpus = `python -c "import multiprocessing; print multiprocessing.cpu_count()"`.to_i
-max_cpus = [host_cpus, 32].max
+max_cpus = [host_cpus, 32].min
 min_cpus = 1
 
 vm_cpus = ENV['VAGRANT_CPUS'].to_i
