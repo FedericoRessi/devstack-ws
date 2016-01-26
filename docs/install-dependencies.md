@@ -58,17 +58,20 @@ From terminal type:
 sudo pip install ansi2html sh
 ```
 
+### Install Python 3.4 on OSX
+Dowload and istall package from [python.org](https://www.python.org/downloads/release/python-344/)
+
 ## Install and configure Vagrant
 
- Download last Vagrant for your operative system from [here](https://www.vagrantup.com/downloads.html)
- Once installed you should install required plugins from terminal as following:
- ```
- vagrant plugin install vagrant-proxyconf
- vagrant plugin install vagrant-cachier
- ```
- Then type `vagrant plugin list` to look if above plugins are listed as following:
- * vagrant-cachier (1.2.1)
- * vagrant-proxyconf (1.5.2)
+Download last Vagrant for your operative system from [here](https://www.vagrantup.com/downloads.html)
+Once installed you should install required plugins from terminal as following:
+```
+vagrant plugin install vagrant-proxyconf
+vagrant plugin install vagrant-cachier
+```
+Then type `vagrant plugin list` to look if above plugins are listed as following:
+* vagrant-cachier (1.2.1)
+* vagrant-proxyconf (1.5.2)
 
 ## Verify installation tu run DevStack
 
