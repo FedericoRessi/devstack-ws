@@ -1,20 +1,19 @@
-Simple workspace for running code and tests on vagrant provisioned VM
+Workspace for running and testing your openstack code with Devstack and Vagrant.
 
-## Goal
+## Goals
 
-Prepare workspace toolset for working with DevStack and Vagrant.
+Run DevStack inside a virtual machine provided using Vagrant. 
 
 The workspace works as a parent folder for projects supported
 by devstack. It provides configuration files to build a virtual
-machine to run devstack inside with repositories from workspace.
+machine and run devstack inside with repositories from workspace.
 The workspace can handle continous integrations inside jenkins.
 
+## Getting started
 
-## Usage
+Before using it you should install project dependencies as pecified [here](docs/install-dependencies.md).
 
-TODO: ([issue #8](https://github.com/FedericoRessi/devstack-ws/issues/8))
-
-## Implemented features
+## Features
 * [Deploy OpenStack](docs/features/deploy-openstack.md) repos to /opt/stack
 * Provide VMs with [devstack dependencies](docs/features/devstack-dependencies.md)
 * Network configuration (UNDOCUMENTED)
@@ -32,3 +31,7 @@ TODO: ([issue #8](https://github.com/FedericoRessi/devstack-ws/issues/8))
 * Cloud VMs build: PLANNED
 * Integrate with autoenv ([issue #1](https://github.com/FedericoRessi/devstack-ws/issues/1))
 * Share files using NFS
+
+
+## How it works
+TODO: ([issue #8](https://github.com/FedericoRessi/devstack-ws/issues/8))
