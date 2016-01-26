@@ -9,8 +9,10 @@ virtualenv:
   system_site_packages: true
 
 install:
-  - pip install -U 'pip<8.0' tox python-coveralls
+  pip install -U 'pip<8.0' tox python-coveralls git-review
 
 script:
-  - cd networking-odl && tox
-  - coveralls
+  cd networking-odl && tox -e pep8,cover networking_odl.common networking_odl.ml2
+
+after_success:
+  cd networking-odl && coveralls
