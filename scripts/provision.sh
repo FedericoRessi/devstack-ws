@@ -63,6 +63,14 @@ elif is_centos; then
         gcc kernel-devel kernel-headers dkms make bzip2 perl yum-utils
 fi
 
+# Disable SSH timeout
+if ! [ -r /etc/ssh/sshd_config.orig ]; then
+    # Save original file
+    sudo mv /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
+fi
+cat /etc/ssh/sshd_config.orig | /vagrant/scripts/modify_sshd_config.awk > ~/sshd_config
+sudo mv ~/sshd_config /etc/ssh/sshd_config
+
 # Increases git performance over nfs
 git config --global core.preloadindex true
 
