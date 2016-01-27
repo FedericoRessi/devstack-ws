@@ -12,7 +12,7 @@ install:
   pip install -U 'pip<8.0' tox python-coveralls git-review
 
 script:
-  ( cd networking-odl && tox -e pep8,cover networking_odl.common networking_odl.ml2 )
+  ( cd networking-odl && tox -e pep8,py34,cover networking_odl.tests )
 
 after_success:
   ( cd networking-odl && coveralls )
