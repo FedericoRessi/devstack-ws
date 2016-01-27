@@ -159,7 +159,8 @@ jenkins: $(WORK_DIRS)
 	set -xe;\
 	$(MAKE) destroy update-box update-submodules;\
 	$(MAKE) apply-patchset;\
-	$(MAKE) tox stack-control  # $@
+	$(MAKE) tox stack-control;\
+	vagrant suspend  # $@
 
 update-box: $(WORK_DIRS)
 	if vagrant box outdated 2>&1 | grep 'vagrant box update'; then\
