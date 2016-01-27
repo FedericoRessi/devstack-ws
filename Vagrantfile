@@ -128,6 +128,11 @@ Vagrant.configure(2) do |config|
         end
     end
 
+    # try fixing NAT crashes
+    config.vm.provider :virtualbox do |vb|
+        vb.customize ['modifyvm', :id, '--natdnshostresolver1', 'on']
+    end
+
     if Vagrant.has_plugin?("vagrant-proxyconf")
         if http_proxy != nil
             config.proxy.http = http_proxy
