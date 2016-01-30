@@ -1,12 +1,12 @@
 [submodule "networking-odl"]
 	path = networking-odl
 	url = https://github.com/FedericoRessi/networking-odl
-	branch = integration/master
+	branch = integration/liberty
 [submodule "devstack"]
 	path = devstack
 	url = https://github.com/FedericoRessi/devstack
-	branch = integration/master
+	branch = integration/liberty
 [submodule "neutron"]
 	path = neutron
 	url = https://github.com/FedericoRessi/neutron.git
-        branch = integration/master
+        branch = integration/liberty
