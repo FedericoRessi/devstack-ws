@@ -72,8 +72,13 @@ end
 
 stack_dir = ENV["STACK_DIR"]
 if stack_dir == nil
-  stack_dir = "#{build_dir}/stack"
+    stack_dir = "#{build_dir}/stack"
 end
+
+user_id = ENV["USER"]
+if user_id == nil
+    user_id = "anonymous"
+fi
 
 # --- vagrant meat ------------------------------------------------------------
 
@@ -86,10 +91,10 @@ Vagrant.configure(2) do |config|
             conf.vm.hostname = vm_name
             # control network
             conf.vm.network "private_network", ip: control_ip,
-                virtualbox__intnet: "controlnet", auto_config: true
+                virtualbox__intnet: "controlnet-#{log_dir}", auto_config: true
             # tenent network
             conf.vm.network "private_network", ip: tenent_ip,
-                virtualbox__intnet: "tenentnet", auto_config: true
+                virtualbox__intnet: "tenentnet-#{log_dir}", auto_config: true
 
             # assign a different random port to every vm instance
             # this avoid concurrency problems when running tests in parallel
