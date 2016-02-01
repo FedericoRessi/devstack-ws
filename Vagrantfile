@@ -78,7 +78,7 @@ end
 user_id = ENV["USER"]
 if user_id == nil
     user_id = "anonymous"
-fi
+end
 
 # --- vagrant meat ------------------------------------------------------------
 
