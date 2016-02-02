@@ -155,18 +155,22 @@ clean-cache: destroy
 
 # -----------------------------------------------------------------------------
 
-jenkins: $(WORK_DIRS)
+jenkins: jenkins-tox jenkins-odl-vhostuser
 	set -xe;\
 	$(MAKE) destroy update-box update-submodules;\
 	$(MAKE) apply-patchset;\
 	$(MAKE) tox stack-control;\
 	vagrant suspend  # $@
 
-jenkins-tox-networking-odl: $(WORK_DIRS)
-	set -xe;\
-	$(MAKE) update-submodules;\
-	$(MAKE) apply-patchset;\
-	$(MAKE) tox-networking-odl  # $@
+jenkins-tox: jenkins-tox-devstack jenkins-tox-networking-odl
+
+jenkins-tox-devstack: apply-patchset tox-devstack $(WORK_DIRS)
+
+jenkins-tox-networking-odl: apply-patchset tox-networking-odl $(WORK_DIRS)
+
+jenkins-odl-vhostuser: apply-patchset destroy update-box $(WORK_DIRS)
+	$(MAKE) stack-control;\
+	vagrant halt  # $@
 
 update-box: $(WORK_DIRS)
 	if vagrant box outdated 2>&1 | grep 'vagrant box update'; then\
@@ -192,7 +196,7 @@ update-submodules: $(WORK_DIRS)
 		$(GIT) remote add -f gerrit $(MODULE_GERRIT_URL);\
 		$(GIT) rebase gerrit/$(MODULE_GERRIT_BASE)'  # $@
 
-apply-patchset:
+apply-patchset: update-submodules
 	set -ex;\
 	if [ -n "$(GERRIT_CHANGE_NUMBER)" ]; then\
 		$(GIT) submodule foreach '\
