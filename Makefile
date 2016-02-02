@@ -162,6 +162,12 @@ jenkins: $(WORK_DIRS)
 	$(MAKE) tox stack-control;\
 	vagrant suspend  # $@
 
+jenkins-tox-networking-odl: $(WORK_DIRS)
+	set -xe;\
+	$(MAKE) update-submodules;\
+	$(MAKE) apply-patchset;\
+	$(MAKE) tox-networking-odl  # $@
+
 update-box: $(WORK_DIRS)
 	if vagrant box outdated 2>&1 | grep 'vagrant box update'; then\
 		$(MAKE) destroy;\
