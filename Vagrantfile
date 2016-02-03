@@ -3,6 +3,10 @@
 
 # --- VMs configuration -------------------------------------------------------
 
+require 'vagrant-proxyconf'
+require 'vagrant-cachier'
+require 'vagrant-hosts'
+
 # number of CPUs for every VM
 host_cpus = `python -c "import multiprocessing; print multiprocessing.cpu_count()"`.to_i
 max_cpus = [host_cpus, 32].min
@@ -89,6 +93,7 @@ Vagrant.configure(2) do |config|
         config.vm.define vm_name do |conf|
             conf.vm.box = vm_boxes[vm_image]
             conf.vm.hostname = vm_name
+
             # control network
             conf.vm.network "private_network", ip: control_ip,
                 virtualbox__intnet: "controlnet-#{log_dir}", auto_config: true
@@ -132,6 +137,8 @@ Vagrant.configure(2) do |config|
             end
         end
     end
+
+    config.vm.provision :hosts
 
     # try fixing NAT crashes
     config.vm.provider :virtualbox do |vb|
