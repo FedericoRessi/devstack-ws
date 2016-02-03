@@ -74,12 +74,12 @@ Dowload and istall package from [python.org](https://www.python.org/downloads/re
 Download last Vagrant for your operative system from [here](https://www.vagrantup.com/downloads.html)
 Once installed you should install required plugins from terminal as following:
 ```
-vagrant plugin install vagrant-proxyconf
-vagrant plugin install vagrant-cachier
+vagrant plugin install vagrant-proxyconf vagrant-cachier vagrant-hosts
 ```
 Then type `vagrant plugin list` to look if above plugins are listed as following:
 * vagrant-cachier (1.2.1)
 * vagrant-proxyconf (1.5.2)
+* vagrant-hosts (2.6.2)
 
 ## Verify installation tu run DevStack
 
