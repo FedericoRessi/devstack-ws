@@ -44,18 +44,14 @@ end
 
 # available VM images
 vm_images = [
-    ["control",
+    [0,
+     "control",
      vm_box_name,
-     '192.168.1.10',
-     '192.168.2.10',
-     '192.168.3.10',
      12288],
 
-    ["compute",
+    [1,
+     "compute",
      vm_box_name,
-     '192.168.1.11',
-     '192.168.2.11',
-     '192.168.3.11',
      16384],
 ]
 
@@ -84,22 +80,34 @@ if user_id == nil
     user_id = "anonymous"
 end
 
+control_networkt_prefix = '192.168.1'
+tenent_network_prefix = '192.168.2'
+nfs_network_prefix = '192.168.3'
+
 # --- vagrant meat ------------------------------------------------------------
 
 Vagrant.configure(2) do |config|
 
-    # For every available VM image
-    vm_images.each do |vm_name, vm_image, control_ip, tenent_ip, nfs_ip, vm_memory|
+    vm_images.each do |node_id, vm_name, vm_image, vm_memory|
+        control_ip = "#{control_networkt_prefix}.#{node_id + 2}"
+        tenent_ip = "#{tenent_network_prefix}.#{node_id + 2}"
+        nfs_ip = "#{tenent_network_prefix}.#{node_id + 2}"
+
         config.vm.define vm_name do |conf|
+
             conf.vm.box = vm_boxes[vm_image]
             conf.vm.hostname = vm_name
 
             # control network
-            conf.vm.network "private_network", ip: control_ip,
-                virtualbox__intnet: "controlnet-#{log_dir}", auto_config: true
+            conf.vm.network "private_network",
+                virtualbox__intnet: "controlnet-#{log_dir}",
+                ip: control_ip, auto_config: true
+
             # tenent network
-            conf.vm.network "private_network", ip: tenent_ip,
-                virtualbox__intnet: "tenentnet-#{log_dir}", auto_config: true
+            conf.vm.network "private_network",
+                virtualbox__intnet: "tenentnet-#{log_dir}",
+                ip: tenent_ip,
+                auto_config: true
 
             # assign a different random port to every vm instance
             # this avoid concurrency problems when running tests in parallel
@@ -115,7 +123,9 @@ Vagrant.configure(2) do |config|
 
             if use_nfs
                 # nfs network
-                conf.vm.network "private_network", ip: nfs_ip, auto_config: true
+                conf.vm.network "private_network",
+                    ip: nfs_ip, auto_config: true
+
                 conf.nfs.map_uid = Process.uid
                 conf.vm.synced_folder ".", "/vagrant", create: true,
                     type: "nfs", mount_options: nfs_mount_options
@@ -135,10 +145,16 @@ Vagrant.configure(2) do |config|
                 # openstack guests to talk to each other
                 vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
             end
+
+            # provision etc host with nodes by name
+            config.vm.provision :hosts do |hosts|
+                vm_images.each do |node_id, vm_name, vm_image, vm_memory|
+                    hosts.add_host "#{control_networkt_prefix}.#{node_id + 2}",
+                        [vm_name]
+                end
+            end
         end
     end
-
-    config.vm.provision :hosts
 
     # try fixing NAT crashes
     config.vm.provider :virtualbox do |vb|

@@ -26,14 +26,6 @@ fi
 
 set +x; source "/vagrant/scripts/distrib_properties.sh"; set -x
 
-# Add local IP addresses to /etc/hosts
-HOST_IPS=$(ip addr | awk '/inet /{split($2, a, "/"); print a[1]}')
-for IP in $HOST_IPS; do
-    if ! grep "^$IP" "/etc/hosts"; then
-        echo "$IP" "$(hostname)" | sudo bash -c 'cat >> "/etc/hosts"'
-    fi
-done
-
 if is_ubuntu; then
     export DEBIAN_FRONTEND=noninteractive
     echo | sudo add-apt-repository cloud-archive:liberty || true
