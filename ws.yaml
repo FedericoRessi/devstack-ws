@@ -1,0 +1,15 @@
+sources:
+    dir: src
+    zuul:
+        - git_base_url: https://git.openstack.org
+          branch: stable/liberty
+          projects:
+              - project: openstack/neutron
+                branch: 'master'
+              - project: openstack/networking-odl
+              - project: openstack-dev/devstack
+          clonemap:
+              - name: 'openstack/(.*)'
+                dest: '\1'
+              - name: 'openstack-dev/(.*)'
+                dest: '\1'

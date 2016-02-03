@@ -13,3 +13,6 @@ python-novaclient/
 *.pyc
 stack
 .settings/
+openstack/
+openstack-dev/
+.tox
