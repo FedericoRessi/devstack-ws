@@ -1,11 +1,14 @@
 import collections
+import contextlib
 import logging
 import os
 import six
 import sys
 
+import sh
 import yaml
 from zuul.lib import cloner
+from git_review import cmd as git_review
 
 
 LOG = logging.getLogger(__name__)
@@ -20,12 +23,79 @@ def main(argv):
         command = invalid_command
     setup_logging()
     conf = Configuration.from_file('ws.yaml')
-    return command(argv, conf)
+    command(argv, conf)
+    return 0
 
 
 def command(func):
     commands[func.__name__.replace('_', '-')] = func
     return func
+
+
+@command
+def get_sources(argv, conf):
+    for source in conf.sources:
+        cl = cloner.Cloner(
+            git_base_url=source.git_base_url,
+            projects=list(source.projects),
+            branch=source.branch,
+            zuul_branch=source.zuul_branch,
+            zuul_ref=source.zuul_ref,
+            zuul_url=source.zuul_url,
+            workspace=source.workspace or os.getcwd(),
+            clone_map_file='',
+            project_branches={
+                project_name: project.branch
+                for project_name, project in six.iteritems(source.projects)
+                if project.branch},
+            cache_dir=source.cache_dir)
+        cl.execute()
+
+        for project_name, project in six.iteritems(source.projects):
+            with cd(project_name):
+                change = project.gerrit_change
+                if change:
+                    print 'change:', change
+                    try:
+                        git.remote.remove('gerrit')
+                    except sh.ErrorReturnCode_1:
+                        pass
+                    gitreview('-d', str(change))
+
+                for name, url in six.iteritems(project.get('remotes', {})):
+                    try:
+                        git.remote('add', name, url)
+                    except sh.ErrorReturnCode_1:
+                        git.remote('set-url', name, url)
+                    git.fetch(name)
+
+                rebase = project.rebase
+                if rebase:
+                    print 'rebase:', rebase
+                    git.rebase(rebase)
+
+
+git = sh.git.bake('--no-pager')
+
+
+@contextlib.contextmanager
+def cd(directory):
+    cwd = os.getcwd()
+    os.chdir(directory)
+    try:
+        yield
+    finally:
+        os.chdir(cwd)
+
+
+def gitreview(*argv):
+    old_argv = sys.argv
+    sys.argv = ['git-review'] + list(argv)
+    try:
+        return git_review._main()
+    finally:
+        sys.argv = old_argv
+        # shutil.rmtree(temp_dir)
 
 
 class Configuration(dict):
@@ -61,44 +131,8 @@ class Configuration(dict):
         return [cls.from_data(value) for value in data]
 
     def __getattr__(self, name):
-        try:
-            return self[name]
-        except KeyError:
-            raise AttributeError 
+        return self.get(name)
 
-
-@command
-def get_sources(argv, conf):
-    for zuul_source in conf.sources.zuul:
-        branch = zuul_source.get('branch', 'master')
-        zuul_cloner(
-            git_base_url=zuul_source.git_base_url or\
-                'https://git.openstack.org/',
-            branch=branch,
-            projects=[p.project for p in zuul_source.projects],
-            workspace=zuul_source.get('workspace'),
-            cache_dir=zuul_source.get('cache-dir'),
-            project_branches=[
-                p.get('branch', branch)
-                for p in zuul_source.projects])
-    return 0
-
-def zuul_cloner(
-         git_base_url, projects, workspace=None, zuul_branch=None,
-         zuul_ref=None, zuul_url=None, branch='master', clone_map_file=None,
-         project_branches=None, cache_dir=None):
-    c = cloner.Cloner(
-        git_base_url=git_base_url,
-        projects=projects,
-        workspace=workspace or os.getcwd(),
-        zuul_branch=zuul_branch or os.environ.get('ZUUL_BRANCH'),
-        zuul_ref=zuul_ref or os.environ.get('ZUUL_REF'),
-        zuul_url=zuul_url or os.environ.get('ZUUL_URL'),
-        branch=branch,
-        clone_map_file=clone_map_file,
-        project_branches=project_branches or ['master'] * len(projects),
-        cache_dir=cache_dir or os.environ.get('ZUUL_CACHE_DIR'))
-    return c.execute()
 
 def setup_logging(color=False, verbose=False):
     """Cloner logging does not rely on conf file"""

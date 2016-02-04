@@ -1,3 +1,4 @@
 PyYAML
 sh
 zuul
+git-review
