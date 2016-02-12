@@ -106,8 +106,7 @@ Vagrant.configure(2) do |config|
             # tenent network
             conf.vm.network "private_network",
                 virtualbox__intnet: "tenentnet-#{log_dir}",
-                ip: tenent_ip,
-                auto_config: true
+                ip: tenent_ip, auto_config: true
 
             # assign a different random port to every vm instance
             # this avoid concurrency problems when running tests in parallel
@@ -117,6 +116,8 @@ Vagrant.configure(2) do |config|
             if vm_name == 'control'
                 conf.vm.network :forwarded_port, guest: 6080, host: 6080,
                     id: "vnc-console", auto_correct: true
+                conf.vm.network :forwarded_port, guest: 5900, host: 5900,
+                    id: "vnc", auto_correct: true
                 conf.vm.network :forwarded_port, guest: 80, host: 8000,
                     id: "openstack", auto_correct: true
             end
