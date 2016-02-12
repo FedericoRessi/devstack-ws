@@ -170,7 +170,9 @@ jenkins-tox-networking-odl: apply-patchset tox-networking-odl $(WORK_DIRS)
 
 jenkins-odl-vhostuser: apply-patchset destroy update-box $(WORK_DIRS)
 	$(MAKE) stack-control;\
-	vagrant halt  # $@
+	result=$$?;\
+	vagrant halt;\
+	exit $$result  # $@
 
 update-box: $(WORK_DIRS)
 	if vagrant box outdated 2>&1 | grep 'vagrant box update'; then\
