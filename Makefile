@@ -17,6 +17,7 @@ MODULE_INTEGRATION_BRANCH = `../scripts/valuefromini ../.gitmodules "submodule \
 MODULE_GERRIT_HOST = `../scripts/valuefromini .gitreview gerrit host review.openstack.org`
 MODULE_GERRIT_PORT = 443
 MODULE_GERRIT_URL = "https://$(MODULE_GERRIT_HOST):$(MODULE_GERRIT_PORT)/`../scripts/valuefromini .gitreview gerrit project unknown-project`"
+MODULE_GERRIT_URL2 = "https://$(MODULE_GERRIT_HOST):$(MODULE_GERRIT_PORT)/gerrit/`../scripts/valuefromini .gitreview gerrit project unknown-project`"
 MODULE_GERRIT_BASE = `../scripts/valuefromini .gitreview gerrit defaultbranch master`
 MODULE_GERRIT_PROJECT = `../scripts/valuefromini .gitreview gerrit project unknown-project`
 
@@ -192,10 +193,12 @@ update-submodules: $(WORK_DIRS)
 		$(GIT) fetch origin $$INTEGRATION_BRANCH;\
 		$(GIT) checkout -f FETCH_HEAD;\
 		$(GIT) checkout -B integration/base;\
-		if $(GIT) remote | grep gerrit > /dev/null; then\
-			$(GIT) remote remove gerrit;\
-		fi;\
-		$(GIT) remote add -f gerrit $(MODULE_GERRIT_URL);\
+		for url in $(MODULE_GERRIT_URL) $(MODULE_GERRIT_URL2); do\
+			if $(GIT) remote | grep gerrit > /dev/null; then\
+				$(GIT) remote remove gerrit;\
+			fi;\
+			$(GIT) remote add -f gerrit $$url && break;\
+		done;\
 		$(GIT) rebase gerrit/$(MODULE_GERRIT_BASE)'  # $@
 
 apply-patchset: update-submodules

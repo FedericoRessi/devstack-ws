@@ -1,12 +1,9 @@
-[submodule "networking-odl"]
-	path = networking-odl
-	url = https://github.com/FedericoRessi/networking-odl
-	branch = integration/master
 [submodule "devstack"]
 	path = devstack
 	url = https://github.com/FedericoRessi/devstack
-	branch = integration/master
-[submodule "neutron"]
-	path = neutron
-	url = https://github.com/FedericoRessi/neutron.git
-        branch = integration/master
+	branch = master
+
+[submodule "yardstick"]
+	path = yardstick
+	url = https://gerrit.opnfv.org/gerrit/yardstick
+        branch = master
