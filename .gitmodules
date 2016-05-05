@@ -3,7 +3,3 @@
 	url = https://github.com/FedericoRessi/devstack
 	branch = master
 
-[submodule "yardstick"]
-	path = yardstick
-	url = https://gerrit.opnfv.org/gerrit/yardstick
-        branch = master
