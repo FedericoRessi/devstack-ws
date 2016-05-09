@@ -3,6 +3,7 @@ build/
 requirements/
 keystone/
 nova/
+neutron/
 cinder/
 glance/
 networking-ovs-dpdk/
