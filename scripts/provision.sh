@@ -35,7 +35,7 @@ if is_ubuntu; then
         build-essential curl socat fdutils linux-generic-lts-vivid\
         libffi-dev libssl-dev libxml2-dev libxslt1-dev\
         python2.7 python2.7-dev python3 python3-dev python-setuptools\
-        wget cachefilesd
+        wget cachefilesd sshpass qemu-utils kpartx python-virtualenv kpartx
 
     # Enable nfs caching
     sudo bash -c 'echo "RUN=yes" > /etc/default/cachefilesd'
@@ -83,6 +83,12 @@ sudo pip-accel install -U 'pip<8' tox certifi pyopenssl ndg-httpsclient pyasn1 c
 
 sudo chown -fR vagrant.vagrant /home/vagrant
 
+# create folder for yardstick
+rm -fR /tmp/workspace/yardstick
+mkdir -p /vagrant/data/yardstick /tmp/workspace/
+ln -sfn /vagrant/data /tmp/workspace/yardstick
+
+
 # Populate /opt/stack ---------------------------------------------------------
 if ! cd "/opt/stack" 2> /dev/null; then
     sudo mkdir -p "/opt/stack"
@@ -114,6 +120,7 @@ case $(hostname) in
     control* )
         cp -fv "/vagrant/control.local.conf"\
                "/opt/stack/devstack/local.conf";;
+
     compute* )
         cp -fv "/vagrant/compute.local.conf"\
                "/opt/stack/devstack/local.conf";;
